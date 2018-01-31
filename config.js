@@ -6,4 +6,9 @@ module.exports = {
     'xain',
     'multichain',
   ],
+  parameters: [
+    'numberOfHosts',
+    'numberOfMiners',
+    'switchChain',
+  ],
 }

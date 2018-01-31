@@ -1,7 +1,8 @@
 const io = require('socket.io-client')
 
 const config = require('./config')
-let activeChain = null
+
+
 
 module.exports = async (options = {}) => {
   const {
@@ -9,6 +10,78 @@ module.exports = async (options = {}) => {
     port,
     log,
   } = options
+  let {activeChain} = options
+
+  function isNumeric (number) {
+    return !isNaN(parseInt(number)) && isFinite(number)
+  }
+
+  function checkCompleteness (object = {}) {
+    const {
+      chain,
+      parameter,
+      value,
+    } = object
+
+    if (!chain && activeChain) {
+      log.warn('Server did not specify a chain')
+      return false
+    }
+    if (!parameter) {
+      log.warn('Server did not specify a parameter')
+      return false
+    }
+    if (!value) {
+      log.warn('Server did not specify a value')
+      return false
+    }
+    if (!config.chains.includes(chain) && activeChain) {
+      log.warn(
+        `Chain ${chain} does not exist`
+      )
+      return false
+    }
+    if (chain !== activeChain && activeChain) {
+      log.warn(
+        `Server tried to change an other chain (${chain} != ${activeChain})`
+      )
+      return false
+    }
+    if (!config.parameters.includes(parameter)) {
+      log.warn(`Parameter ${parameter} is unknown`)
+      return false
+    }
+    if (
+      parameter !== 'switchChain' &&
+      (!isNumeric(value) || value < 0 || value > 50)
+    ) {
+      log.warn(`Can not set ${parameter} to ${value}`)
+      return false
+    }
+    if (
+      parameter === 'switchChain' &&
+      (activeChain === value ||
+      typeof value !== 'string' || !config.chains.includes(value))
+    ) {
+      log.info(`Can not switch chain ${activeChain} to ${value}`)
+      return false
+    }
+    return true
+  }
+
+
+  function executeRequest (object = {}) {
+    const {
+      chain,
+      parameter,
+      value,
+    } = object
+    if (parameter === 'switchChain') {
+      activeChain = value
+    }
+    log.info(`Apply on ${chain} ${parameter} = ${value}`)
+  }
+
   const socket = io.connect(`${url}:${port}`)
 
   socket.on('connect', () => {
@@ -16,32 +89,14 @@ module.exports = async (options = {}) => {
   })
 
   socket.on('messages', data => {
-    if (JSON.parse(data)) {
+    try {
       const instruction = JSON.parse(data)
-      if (!instruction.action) {
-        log.warn('Server did not specify the action')
-        return
-      }
-
-
-      if (instruction.action === 'scale' &&
-        instruction.content >= 0) {
-        log.info(`Scale docker to ${instruction.content}`)
-      }
-      else if (
-        instruction.action === 'change' &&
-      instruction.content !== activeChain &&
-      config.chains.includes(instruction.content)
-      ) {
-        activeChain = instruction.content
-        log.info(`Change Blockchain to ${instruction.content}`)
-      }
-      else {
-        log.warn(`Server sent wrong parameters: ${data}`)
+      if (checkCompleteness(instruction)) {
+        executeRequest(instruction)
       }
     }
-    else {
-      log.warn('Server did not sent a JSON object')
+    catch (error) {
+      log.error(`Server did not sent a JSON object: ${error.message}`)
     }
   })
 }
