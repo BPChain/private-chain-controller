@@ -1,13 +1,10 @@
-const io = require('socket.io-client')
+const WebSocket = require('ws')
 
 const config = require('./config')
-
-
 
 module.exports = async (options = {}) => {
   const {
     url,
-    port,
     log,
   } = options
   let {activeChain} = options
@@ -82,13 +79,13 @@ module.exports = async (options = {}) => {
     log.info(`Apply on ${chain} ${parameter} = ${value}`)
   }
 
-  const socket = io.connect(`${url}:${port}`)
+  const ws = new WebSocket(url)
 
-  socket.on('connect', () => {
-    log.info('Successfully connected!')
+  ws.on('open', () => {
+    ws.send('open connection')
   })
 
-  socket.on('messages', data => {
+  ws.on('messages', data => {
     try {
       const instruction = JSON.parse(data)
       if (checkCompleteness(instruction)) {

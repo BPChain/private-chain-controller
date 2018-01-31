@@ -1,5 +1,5 @@
 module.exports = {
-  url: 'http://localhost',
+  url: 'https://bpt-lab.org/bp2017w1-controller',
   port: 4040,
   chains: [
     'ethereum',
