@@ -1,7 +1,7 @@
 #!/bin/bash
-# Makes x Nodes do nothing except listening for propagating  blocks and
+# Makes x Nodes do nothing except listening for propagated blocks and
 # perhaps send transactions
 
 cd /home/jonas.cremerius/bin/XAIN-chain/private-xain/Node || exit
 
-let "lazy_Number=$1"
+docker-compose scale xain_lazy="$1"
