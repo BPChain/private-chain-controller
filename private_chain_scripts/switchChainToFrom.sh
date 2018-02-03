@@ -3,3 +3,9 @@
 
 let "chainToSwitchTo=$1"
 let "chainToSwitchFrom=$2"
+
+cd /home/jonas.cremerius/bin/private-"$chainToSwitchFrom"/Node || exit
+docker-compose down
+
+cd /home/jonas.cremerius/bin/private-"$chainToSwitchTo"/Node || exit
+docker-compose up --build
