@@ -1,7 +1,7 @@
 #!/bin/bash
 # Scale to x nodes supplied as fist parameter
 
-cd /home/jonas.cremerius/bin/private-xain/Node || exit
+cd /home/"$USER"/bin/private-xain/Node || exit
 
 let "scale_number=0"
 let "scale_count=0"
