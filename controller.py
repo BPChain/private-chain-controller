@@ -7,6 +7,7 @@ parameterList = [
     'numberOfHosts',
     'numberOfMiners',
     'switchChain',
+    'startChain',
 ]
 
 chainList = [
@@ -46,7 +47,7 @@ def checkCompleteness(object):
         print('Parameter ${parameter} is unknown')
         return False
 
-    if parameter != 'switchChain':
+    if parameter != 'switchChain' and parameter != 'startChain':
         try:
             if int(value) < 0 or int(value) > 50:
                 print('Can not set parameter to value')
@@ -57,6 +58,10 @@ def checkCompleteness(object):
 
     if parameter is 'switchChain' and (activeChain == value or value not in chainList):
         print('Can not switch chain ${activeChain} to ${value}')
+        return False
+
+    if parameter is 'startChain' and (activeChain != None or value not in chainList):
+        print('Can not start chain ${value}, ${activeChain} is already running!')
         return False
 
     return True
@@ -72,28 +77,27 @@ def startSocket() -> WebSocket:
             print("Received '%s'" % message)
             if checkCompleteness(message):
                 messageBody = json.loads(message)
-                    chain = messageBody["chain"]
-                    parameter = messageBody["parameter"]
-                    value = messageBody["value"]
-                    if parameter = 'switchChain'
-                        output = subprocess.check_output(
-                            ['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChain)])
-                        print(output)
-                    else if parameter = 'numberOfHost'
-                        path = "./private_chain_scripts/lazyNodes_{}.sh".format(
-                            chain)
-                        output = subprocess.check_output([path, str(value)])
-                        print(output)
-                    else if parameter = 'numberOfMiners'
-                        path = "./private_chain_scripts/scale_{}.sh".format(
-                            chain)
-                        output = subprocess.check_output([path, str(value)])
-                        print(output)
-                    else if parameter = 'startChain' & & activeChain = None
-                        activeChain = chain
-                        subprocess.Popen(
-                            ["bash", "./private_chain_scripts/startChain.sh", str(chain)])
-
+                chain = messageBody["chain"]
+                parameter = messageBody["parameter"]
+                value = messageBody["value"]
+                if parameter == 'switchChain':
+                    output = subprocess.check_output(
+                        ['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChain)])
+                    print(output)
+                if parameter == 'numberOfHost':
+                    path = "./private_chain_scripts/lazyNodes_{}.sh".format(
+                        chain)
+                    output = subprocess.check_output([path, str(value)])
+                    print(output)
+                if parameter == 'numberOfMiners':
+                    path = "./private_chain_scripts/scale_{}.sh".format(
+                        chain)
+                    output = subprocess.check_output([path, str(value)])
+                    print(output)
+                if parameter == 'startChain':
+                    activeChain = chain
+                    subprocess.Popen(
+                        ["bash", "./private_chain_scripts/startChain.sh", str(chain)])
     except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
