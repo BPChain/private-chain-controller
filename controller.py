@@ -4,76 +4,100 @@ from websocket import create_connection, WebSocket
 activeChain = None
 
 parameterList = [
-  'numberOfHosts',
-  'numberOfMiners',
-  'switchChain',
+    'numberOfHosts',
+    'numberOfMiners',
+    'switchChain',
 ]
 
 chainList = [
-  'ethereum',
-  'xain',
-  'multichain',
+    'ethereum',
+    'xain',
+    'multichain',
 ]
 
-def checkCompleteness (object):
-  dictionary = json.loads(object)
-  chain = dictionary["chain"]
-  parameter = dictionary["parameter"]
-  value = dictionary["value"]
 
-  if not chain and activeChain:
-    print('Server did not specify a chain')
-    return False
+def checkCompleteness(object):
+    dictionary = json.loads(object)
+    chain = dictionary["chain"]
+    parameter = dictionary["parameter"]
+    value = dictionary["value"]
 
-  if not parameter:
-    print('Server did not specify a parameter')
-    return False
-
-  if not value:
-    print('Server did not specify a value')
-    return False
-
-  if not chain in chainList and activeChain:
-    print('Chain ${chain} does not exist')
-    return False
-
-  if chain != activeChain and activeChain:
-    print('Server tried to change an other chain')
-    return False
-
-  if not parameter in parameterList:
-    print('Parameter ${parameter} is unknown')
-    return False
-
-
-  if parameter != 'switchChain':
-    try:
-      if int(value) < 0 or int(value) > 50:
-        print('Can not set parameter to value')
+    if not chain and activeChain:
+        print('Server did not specify a chain')
         return False
-    except Exception as exception:
-      print('Value is string')
-      return False
 
-  if parameter is 'switchChain' and (activeChain == value or value not in chainList):
-    print('Can not switch chain ${activeChain} to ${value}')
-    return False
+    if not parameter:
+        print('Server did not specify a parameter')
+        return False
 
-  return True
+    if not value:
+        print('Server did not specify a value')
+        return False
+
+    if not chain in chainList and activeChain:
+        print('Chain ${chain} does not exist')
+        return False
+
+    if chain != activeChain and activeChain:
+        print('Server tried to change an other chain')
+        return False
+
+    if not parameter in parameterList:
+        print('Parameter ${parameter} is unknown')
+        return False
+
+    if parameter != 'switchChain':
+        try:
+            if int(value) < 0 or int(value) > 50:
+                print('Can not set parameter to value')
+                return False
+        except Exception as exception:
+            print('Value is string')
+            return False
+
+    if parameter is 'switchChain' and (activeChain == value or value not in chainList):
+        print('Can not switch chain ${activeChain} to ${value}')
+        return False
+
+    return True
+
 
 def startSocket() -> WebSocket:
-  try:
-    web_socket = create_connection("ws://172.16.64.115:4040")
-    print("Connection established")
-    waitingForInputs = True
-    while waitingForInputs:
-      message = web_socket.recv()
-      print("Received '%s'" % message)
-      if checkCompleteness(message):
-        print('TODO')
-  except Exception as exception:
+    try:
+        web_socket = create_connection("ws://172.16.64.115:4040")
+        print("Connection established")
+        waitingForInputs = True
+        while waitingForInputs:
+            message = web_socket.recv()
+            print("Received '%s'" % message)
+            if checkCompleteness(message):
+                messageBody = json.loads(message)
+                    chain = messageBody["chain"]
+                    parameter = messageBody["parameter"]
+                    value = messageBody["value"]
+                    if parameter = 'switchChain'
+                        output = subprocess.check_output(
+                            ['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChain)])
+                        print(output)
+                    else if parameter = 'numberOfHost'
+                        path = "./private_chain_scripts/lazyNodes_{}.sh".format(
+                            chain)
+                        output = subprocess.check_output([path, str(value)])
+                        print(output)
+                    else if parameter = 'numberOfMiners'
+                        path = "./private_chain_scripts/scale_{}.sh".format(
+                            chain)
+                        output = subprocess.check_output([path, str(value)])
+                        print(output)
+                    else if parameter = 'startChain' & & activeChain = None
+                        activeChain = chain
+                        subprocess.Popen(
+                            ["bash", "./private_chain_scripts/startChain.sh", str(chain)])
+
+    except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
 
+
 if __name__ == "__main__":
-  startSocket()
+    startSocket()
