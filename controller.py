@@ -108,7 +108,7 @@ def startSocket():
                     path = "./private_chain_scripts/start_{}.sh".format(
                         activeChain)
                     subprocess.Popen(
-                ["bash", path])
+                        ["bash", path])
     except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
