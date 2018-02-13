@@ -1,5 +1,6 @@
 import json
 from websocket import create_connection, WebSocket
+import subprocess
 
 activeChain = None
 
@@ -69,7 +70,8 @@ def checkCompleteness(object):
 
 def startSocket() -> WebSocket:
     try:
-        web_socket = create_connection("ws://172.16.64.115:4040")
+
+        web_socket = create_connection("ws://bpt-lab.org/bp2017w1-controller")
         print("Connection established")
         waitingForInputs = True
         while waitingForInputs:
@@ -95,9 +97,10 @@ def startSocket() -> WebSocket:
                     output = subprocess.check_output([path, str(value)])
                     print(output)
                 if parameter == 'startChain':
-                    activeChain = chain
+                    activeChain = value
+                    path = "./private_chain_scripts/start_{}.sh".format(activeChain)
                     subprocess.Popen(
-                        ["bash", "./private_chain_scripts/startChain.sh", str(chain)])
+                        ["bash", path])
     except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
