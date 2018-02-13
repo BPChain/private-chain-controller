@@ -3,7 +3,9 @@ from websocket import create_connection, WebSocket
 import subprocess
 import socket
 
-activeChain = None
+
+if __name__ == "__main__":
+  activeChain = None
 hostname = socket.gethostname()
 
 parameterList = [
@@ -18,6 +20,7 @@ chainList = [
     'xain',
     'multichain',
 ]
+    startSocket()
 
 
 def checkCompleteness(object):
@@ -109,7 +112,3 @@ def startSocket():
     except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
-
-
-if __name__ == "__main__":
-    startSocket()
