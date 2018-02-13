@@ -3,24 +3,6 @@ from websocket import create_connection, WebSocket
 import subprocess
 import socket
 
-
-if __name__ == "__main__":
-    activeChain = None
-    hostname = socket.gethostname()
-    parameterList = [
-        'numberOfHosts',
-        'numberOfMiners',
-        'switchChain',
-        'startChain',
-    ]
-    chainList = [
-        'ethereum',
-        'xain',
-        'multichain',
-    ]
-    startSocket()
-
-
 def checkCompleteness(object):
     dictionary = json.loads(object)
     chain = dictionary["chain"]
@@ -112,3 +94,19 @@ def startSocket():
     except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
+
+if __name__ == "__main__":
+    activeChain = None
+    hostname = socket.gethostname()
+    parameterList = [
+        'numberOfHosts',
+        'numberOfMiners',
+        'switchChain',
+        'startChain',
+    ]
+    chainList = [
+        'ethereum',
+        'xain',
+        'multichain',
+    ]
+    startSocket()
