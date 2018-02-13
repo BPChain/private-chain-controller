@@ -75,7 +75,8 @@ def startSocket():
 	print("Create Connection")
         web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
         print(hostname)
-        web_socket.send('{name: ${hostname}}')
+        print(activeChain)
+        web_socket.send('{name: ${hostname}, chain: ${activeChain}}')
         print("Connection established")
         waitingForInputs = True
         while waitingForInputs:
