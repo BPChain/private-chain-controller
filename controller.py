@@ -5,20 +5,20 @@ import socket
 
 
 if __name__ == "__main__":
-  activeChain = None
-  hostname = socket.gethostname()
-  parameterList = [
-      'numberOfHosts',
-      'numberOfMiners',
-      'switchChain',
-      'startChain',
-  ]
-  chainList = [
-      'ethereum',
-      'xain',
-      'multichain',
-  ]
-  startSocket()
+    activeChain = None
+    hostname = socket.gethostname()
+    parameterList = [
+        'numberOfHosts',
+        'numberOfMiners',
+        'switchChain',
+        'startChain',
+    ]
+    chainList = [
+        'ethereum',
+        'xain',
+        'multichain',
+    ]
+    startSocket()
 
 
 def checkCompleteness(object):
@@ -65,7 +65,8 @@ def checkCompleteness(object):
         return False
 
     if parameter is 'startChain' and (activeChain != None or value not in chainList):
-        print('Can not start chain ${value}, ${activeChain} is already running!')
+        print(
+            'Can not start chain ${value}, ${activeChain} is already running!')
         return False
 
     return True
@@ -73,7 +74,7 @@ def checkCompleteness(object):
 
 def startSocket():
     try:
-	      print("Create Connection")
+        print("Create Connection")
         web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
         print(hostname)
         print(activeChain)
@@ -104,9 +105,10 @@ def startSocket():
                     print(output)
                 if parameter == 'startChain':
                     activeChain = value
-		    path = "./private_chain_scripts/start_{}.sh".format(activeChain)
+                    path = "./private_chain_scripts/start_{}.sh".format(
+                        activeChain)
                     subprocess.Popen(
-                        ["bash", path])
+                ["bash", path])
     except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
