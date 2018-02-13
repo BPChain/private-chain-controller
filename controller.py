@@ -3,14 +3,13 @@ from websocket import create_connection, WebSocket
 import subprocess
 import socket
 
-
 def checkCompleteness(object):
     dictionary = json.loads(object)
     chain = dictionary["chain"]
     parameter = dictionary["parameter"]
     value = dictionary["value"]
 
-    if not chain and activeChain:
+    if not chain and activeChain is not None:
         print('Server did not specify a chain')
         return False
 
@@ -22,15 +21,15 @@ def checkCompleteness(object):
         print('Server did not specify a value')
         return False
 
-    if not chain in chainList and activeChain:
+    if chain not in chainList and activeChain is not None:
         print('Chain ${chain} does not exist')
         return False
 
-    if chain != activeChain and activeChain:
+    if chain != activeChain and activeChain is not None:
         print('Server tried to change an other chain')
         return False
 
-    if not parameter in parameterList:
+    if parameter not in parameterList:
         print('Parameter ${parameter} is unknown')
         return False
 
@@ -47,7 +46,7 @@ def checkCompleteness(object):
         print('Can not switch chain ${activeChain} to ${value}')
         return False
 
-    if parameter is 'startChain' and (activeChain != None or value not in chainList):
+    if parameter is 'startChain' and (activeChain is not None or value not in chainList):
         print(
             'Can not start chain ${value}, ${activeChain} is already running!')
         return False
@@ -57,10 +56,17 @@ def checkCompleteness(object):
 
 def startSocket():
     try:
+        global activeChain
+        global hostname
+        if activeChain is None:
+            activeChainName = "None"
+        else:
+            activeChainName = activeChain
         print("Create Connection")
         web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
         print(hostname)
-        web_socket.send('{name: ${hostname}, chain: ${activeChain}}')
+        data = {'name': hostname, 'chain': activeChainName}
+        web_socket.send(json.dumps(data))
         print("Connection established")
         waitingForInputs = True
         while waitingForInputs:
@@ -73,7 +79,7 @@ def startSocket():
                 value = messageBody["value"]
                 if parameter == 'switchChain':
                     output = subprocess.check_output(
-                        ['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChain)])
+                        ['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChainName)])
                     print(output)
                 if parameter == 'numberOfHost':
                     path = "./private_chain_scripts/lazyNodes_{}.sh".format(
@@ -87,8 +93,9 @@ def startSocket():
                     print(output)
                 if parameter == 'startChain':
                     activeChain = value
+                    activeChainName = value
                     path = "./private_chain_scripts/start_{}.sh".format(
-                        activeChain)
+                        activeChainName)
                     subprocess.Popen(
                         ["bash", path])
     except Exception as exception:
@@ -97,9 +104,7 @@ def startSocket():
 
 
 if __name__ == "__main__":
-    global activeChain
     activeChain = None
-    global hostname
     hostname = socket.gethostname()
     parameterList = [
         'numberOfHosts',
