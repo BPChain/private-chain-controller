@@ -6,21 +6,19 @@ import socket
 
 if __name__ == "__main__":
   activeChain = None
-hostname = socket.gethostname()
-
-parameterList = [
-    'numberOfHosts',
-    'numberOfMiners',
-    'switchChain',
-    'startChain',
-]
-
-chainList = [
-    'ethereum',
-    'xain',
-    'multichain',
-]
-    startSocket()
+  hostname = socket.gethostname()
+  parameterList = [
+      'numberOfHosts',
+      'numberOfMiners',
+      'switchChain',
+      'startChain',
+  ]
+  chainList = [
+      'ethereum',
+      'xain',
+      'multichain',
+  ]
+  startSocket()
 
 
 def checkCompleteness(object):
@@ -75,7 +73,7 @@ def checkCompleteness(object):
 
 def startSocket():
     try:
-	print("Create Connection")
+	      print("Create Connection")
         web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
         print(hostname)
         print(activeChain)
