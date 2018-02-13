@@ -1,8 +1,10 @@
 import json
 from websocket import create_connection, WebSocket
 import subprocess
+import socket
 
 activeChain = None
+hostname = socket.gethostname()
 
 parameterList = [
     'numberOfHosts',
@@ -72,6 +74,8 @@ def startSocket():
     try:
 	print("Create Connection")
         web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
+        print(hostname)
+        web_socket.send('{name: ${hostname}}')
         print("Connection established")
         waitingForInputs = True
         while waitingForInputs:
