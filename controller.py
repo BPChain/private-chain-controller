@@ -96,8 +96,8 @@ def startSocket():
         print(exception)
 
 if __name__ == "__main__":
-    activeChain = None
-    hostname = socket.gethostname()
+    global activeChain = None
+    global hostname = socket.gethostname()
     parameterList = [
         'numberOfHosts',
         'numberOfMiners',
