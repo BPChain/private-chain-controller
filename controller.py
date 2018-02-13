@@ -3,6 +3,7 @@ from websocket import create_connection, WebSocket
 import subprocess
 import socket
 
+
 def checkCompleteness(object):
     dictionary = json.loads(object)
     chain = dictionary["chain"]
@@ -59,7 +60,6 @@ def startSocket():
         print("Create Connection")
         web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
         print(hostname)
-        print(activeChain)
         web_socket.send('{name: ${hostname}, chain: ${activeChain}}')
         print("Connection established")
         waitingForInputs = True
@@ -95,9 +95,12 @@ def startSocket():
         print("Error occured while waiting for transactions: ")
         print(exception)
 
+
 if __name__ == "__main__":
-    global activeChain = None
-    global hostname = socket.gethostname()
+    global activeChain
+    activeChain = None
+    global hostname
+    hostname = socket.gethostname()
     parameterList = [
         'numberOfHosts',
         'numberOfMiners',
