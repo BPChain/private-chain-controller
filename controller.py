@@ -70,8 +70,8 @@ def checkCompleteness(object):
 
 def startSocket():
     try:
-
-        web_socket = create_connection("ws://bpt-lab.org/bp2017w1-controller")
+	print("Create Connection")
+        web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
         print("Connection established")
         waitingForInputs = True
         while waitingForInputs:
@@ -98,7 +98,7 @@ def startSocket():
                     print(output)
                 if parameter == 'startChain':
                     activeChain = value
-                    path = "./private_chain_scripts/start_{}.sh".format(activeChain)
+		    path = "./private_chain_scripts/start_{}.sh".format(activeChain)
                     subprocess.Popen(
                         ["bash", path])
     except Exception as exception:
