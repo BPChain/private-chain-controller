@@ -68,7 +68,7 @@ def checkCompleteness(object):
     return True
 
 
-def startSocket() -> WebSocket:
+def startSocket():
     try:
 
         web_socket = create_connection("ws://bpt-lab.org/bp2017w1-controller")
