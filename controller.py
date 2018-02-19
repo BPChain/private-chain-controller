@@ -78,26 +78,21 @@ def startSocket():
                 parameter = messageBody["parameter"]
                 value = messageBody["value"]
                 if parameter == 'switchChain':
-                    output = subprocess.check_output(
-                        ['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChainName)])
-                    print(output)
+                    subprocess.Popen(['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChainName)])
                 if parameter == 'numberOfHost':
                     path = "./private_chain_scripts/lazyNodes_{}.sh".format(
                         chain)
-                    output = subprocess.check_output([path, str(value)])
-                    print(output)
+                    subprocess.Popen([str(path), str(value)])
                 if parameter == 'numberOfMiners':
                     path = "./private_chain_scripts/scale_{}.sh".format(
                         chain)
-                    output = subprocess.check_output([path, str(value)])
-                    print(output)
+                    subprocess.Popen([str(path), str(value)])
                 if parameter == 'startChain':
                     activeChain = value
                     activeChainName = value
                     path = "./private_chain_scripts/start_{}.sh".format(
                         activeChainName)
-                    subprocess.Popen(
-                        ["bash", path])
+                    subprocess.Popen(["bash", path])
     except Exception as exception:
         print("Error occured while waiting for transactions: ")
         print(exception)
