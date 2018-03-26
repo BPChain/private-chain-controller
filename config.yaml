@@ -1,0 +1,11 @@
+ethereum
+  - numberOfHosts: Number of hosts
+  - numberOfMiners: Number of miners
+
+xain
+  - numberOfHosts: Number of hosts
+  - numberOfMiners: Number of miners
+
+multichain
+  - numberOfHosts: Number of hosts
+  - numberOfMiners: Number of miners
