@@ -1,4 +1,4 @@
-url: ws://localhost:4040
+url: wss://bpt-lab.org/bp2017w1-controller
 
 chainScripts:
   start: ./private_chain_scripts/start_{}.sh
