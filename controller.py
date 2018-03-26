@@ -1,115 +1,86 @@
 import json
+import yaml
 from websocket import create_connection, WebSocket
 import subprocess
 import socket
+import os
 
-def checkCompleteness(object):
-    dictionary = json.loads(object)
-    chain = dictionary["chain"]
-    parameter = dictionary["parameter"]
-    value = dictionary["value"]
 
-    if not chain and activeChain is not None:
-        print('Server did not specify a chain')
-        return False
+config = {}
 
-    if not parameter:
-        print('Server did not specify a parameter')
-        return False
+def dispatchJob(job):
+  for chain in (config['chains']):
+    if chain['chainName'] is job['chainName']:
+      print(chain['chainName'])
+      for parameter in chain['parameter']:
+        print(parameter['name'])
 
-    if not value:
-        print('Server did not specify a value')
-        return False
-
-    if chain not in chainList and activeChain is not None:
-        print('Chain ${chain} does not exist')
-        return False
-
-    if chain != activeChain and activeChain is not None:
-        print('Server tried to change an other chain')
-        return False
-
-    if parameter not in parameterList:
-        print('Parameter ${parameter} is unknown')
-        return False
-
-    if parameter != 'switchChain' and parameter != 'startChain':
-        try:
-            if int(value) < 0 or int(value) > 50:
-                print('Can not set parameter to value')
-                return False
-        except Exception as exception:
-            print('Value is string')
-            return False
-
-    if parameter is 'switchChain' and (activeChain == value or value not in chainList):
-        print('Can not switch chain ${activeChain} to ${value}')
-        return False
-
-    if parameter is 'startChain' and (activeChain is not None or value not in chainList):
-        print(
-            'Can not start chain ${value}, ${activeChain} is already running!')
-        return False
-
-    return True
-
+def initController():
+  try:
+    global config
+    config = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'config.yaml')))
+  except Exception as exception:
+    print("Error occured while parsing config.yaml")
+    print(exception)
 
 def startSocket():
-    try:
-        global activeChain
-        global hostname
-        if activeChain is None:
-            activeChainName = "None"
-        else:
-            activeChainName = activeChain
-        print("Create Connection")
-        web_socket = create_connection("wss://bpt-lab.org/bp2017w1-controller")
-        print(hostname)
-        data = {'name': hostname, 'chain': activeChainName}
-        web_socket.send(json.dumps(data))
-        print("Connection established")
-        waitingForInputs = True
-        while waitingForInputs:
-            message = web_socket.recv()
-            print("Received '%s'" % message)
-            if checkCompleteness(message):
-                messageBody = json.loads(message)
-                chain = messageBody["chain"]
-                parameter = messageBody["parameter"]
-                value = messageBody["value"]
-                if parameter == 'switchChain':
-                    subprocess.Popen(['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChainName)])
-                if parameter == 'numberOfHost':
-                    path = "./private_chain_scripts/lazyNodes_{}.sh".format(
-                        chain)
-                    subprocess.Popen([str(path), str(value)])
-                if parameter == 'numberOfMiners':
-                    path = "./private_chain_scripts/scale_{}.sh".format(
-                        chain)
-                    subprocess.Popen([str(path), str(value)])
-                if parameter == 'startChain':
-                    activeChain = value
-                    activeChainName = value
-                    path = "./private_chain_scripts/start_{}.sh".format(
-                        activeChainName)
-                    subprocess.Popen(["bash", path])
-    except Exception as exception:
-        print("Error occured while waiting for transactions: ")
+  try:
+    activeChainName = None
+    print("Create connection")
+    hostname = socket.gethostname()
+    web_socket = create_connection(config['url'])
+    print("Connection established")
+    print("Hostname: " + hostname)
+    print("Send chain configuration options")
+    data = {
+      'target': config['target'],
+      'chains': config['chains'],
+    }
+    web_socket.send(json.dumps(data))
+    print("Chain configuration options sent")
+
+
+    waitingForInputs = True
+    while waitingForInputs:
+      message = web_socket.recv()
+      print("Received '%s'" % message)
+      try:
+        job = json.loads(message)
+        dispatchJob(job)
+      except Exception as exception:
+        print("Error occured. Can not parse JSON")
         print(exception)
 
 
+  except Exception as exception:
+    print("Connection error occured")
+    print(exception)
+    return False
+
+
 if __name__ == "__main__":
-    activeChain = None
-    hostname = socket.gethostname()
-    parameterList = [
-        'numberOfHosts',
-        'numberOfMiners',
-        'switchChain',
-        'startChain',
-    ]
-    chainList = [
-        'ethereum',
-        'xain',
-        'multichain',
-    ]
-    startSocket()
+  initController()
+  startSocket()
+
+"""
+messageBody = json.loads(message)
+        chain = messageBody["chain"]
+        parameter = messageBody["parameter"]
+        value = messageBody["value"]
+        if parameter == 'switchChain':
+            subprocess.Popen(['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChainName)])
+        if parameter == 'numberOfHost':
+            path = "./private_chain_scripts/lazyNodes_{}.sh".format(
+                chain)
+            subprocess.Popen([str(path), str(value)])
+        if parameter == 'numberOfMiners':
+            path = "./private_chain_scripts/scale_{}.sh".format(
+                chain)
+            subprocess.Popen([str(path), str(value)])
+        if parameter == 'startChain':
+            activeChain = value
+            activeChainName = value
+            path = "./private_chain_scripts/start_{}.sh".format(
+                activeChainName)
+            subprocess.Popen(["bash", path])
+"""

@@ -1,11 +1,30 @@
-ethereum
-  - numberOfHosts: Number of hosts
-  - numberOfMiners: Number of miners
+url: ws://localhost:4040
 
-xain
-  - numberOfHosts: Number of hosts
-  - numberOfMiners: Number of miners
+chainScripts:
+  start: ./private_chain_scripts/start_{}.sh
+  switch: ./private_chain_scripts/switchChainToFrom.sh
+  scale: ./private_chain_scripts/scale_{}.sh
 
-multichain
-  - numberOfHosts: Number of hosts
-  - numberOfMiners: Number of miners
+
+target: target
+chains:
+- chainName: ethereum
+  parameter:
+  - selector: numberOfHosts
+    name: Number of hosts
+  - selector: numberOfMiners
+    name: Number of miners
+
+- chainName: xain
+  parameter:
+  - selector: numberOfHosts
+    name: Number of hosts
+  - selector: numberOfMiners
+    name: Number of miners
+
+- chainName: multichain
+  parameter:
+  - selector: numberOfHosts
+    name: Number of hosts
+  - selector: numberOfMiners
+    name: Number of miners
