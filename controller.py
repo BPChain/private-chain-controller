@@ -102,7 +102,7 @@ def startSocket():
       waitingForInputs = True
       while waitingForInputs:
         message = web_socket.recv()
-        print('Received '%s'' % message)
+        print('Received ' + message)
         try:
           job = json.loads(message)
           enactJob(job)
