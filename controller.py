@@ -7,80 +7,120 @@ import os
 
 
 config = {}
+activeChainName = None
 
-def dispatchJob(job):
+def startChain(chainName):
+  path = config['start'].format(str(chainName))
+  subprocess.Popen([str(path)])
+  activeChainName = chainName
+
+def stopChain(chainName):
+  path = config['stop']
+  subprocess.Popen([str(path), str(chainName)])
+  activeChainName = None
+
+def switchChainTo(chainName):
+  path = config['switch']
+  subprocess.Popen([str(path), str(chainName), str(activeChainName)])
+  activeChainName = chainName
+
+def scaleHosts(chainName, value):
+  path = config[scaleLazy].format(chainName)
+  subprocess.Popen([str(path), str(value)])
+
+def scaleMiners(chainName, value):
+  path = config[scaleMiner].format(chainName)
+  subprocess.Popen([str(path), str(value)])
+
+def dispatchAction(chainName, parameter, value):
+  if parameter == 'numberofhosts':
+    print('Scale ' + chainName + ' hosts to ' + value)
+    scaleHosts(chainName, value)
+
+  if parameter == 'numberofminers':
+    print('Scale ' + chainName + ' miners to ' + value)
+    scaleMiners(chainName, value)
+
+  if parameter == 'startchain':
+    print('Start ' + chainName)
+    startChain(chainName)
+
+  if parameter == 'stopchain':
+    print('Stop ' + chainName)
+    stopChain(chainName)
+
+  if parameter == 'switchchain':
+    print('Switch ' + activeChainName + ' to ' + chainName)
+    switchChainTo(chainName)
+
+def enactJob(job):
   for chain in (config['chains']):
-    if chain['chainName'] is job['chainName']:
-      print(chain['chainName'])
-      for parameter in chain['parameter']:
-        print(parameter['name'])
+    if chain['chainName'].lower() == job['chainName'].lower():
+      chainName = chain['chainName']
+      for parameter in job['parameter']:
+        print(parameter)
+        for availableParameter in chain['parameter']:
+          if parameter.lower() == availableParameter['selector'].lower():
+            selectedParameter = availableParameter['selector'].lower()
+            try:
+              dispatchAction(chainName, selectedParameter, job['parameter'][availableParameter['selector']])
+            except Exception as exception:
+              print('Error occured when dispatching job')
+
+
 
 def initController():
   try:
     global config
     config = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), 'config.yaml')))
   except Exception as exception:
-    print("Error occured while parsing config.yaml")
+    print('Error occured while parsing config.yaml')
     print(exception)
 
 def startSocket():
-  try:
-    activeChainName = None
-    print("Create connection")
-    hostname = socket.gethostname()
-    web_socket = create_connection(config['url'])
-    print("Connection established")
-    print("Hostname: " + hostname)
-    print("Send chain configuration options")
-    data = {
-      'target': config['target'],
-      'chains': config['chains'],
-    }
-    web_socket.send(json.dumps(data))
-    print("Chain configuration options sent")
+  reconnect = 0
+  while(reconnect < 20):
+    try:
+      if activeChainName != None:
+        stopChain(activeChainName)
+
+      print('Create connection')
+      hostname = socket.gethostname()
+      web_socket = create_connection(config['url'])
+      print('Connection established')
+      print('Hostname: ' + hostname)
+      reconnect = 0
+      print('Send chain configuration options')
+      data = {
+        'target': hostname,
+        'chains': config['chains'],
+      }
+      web_socket.send(json.dumps(data))
+      print('Chain configuration options sent')
 
 
-    waitingForInputs = True
-    while waitingForInputs:
-      message = web_socket.recv()
-      print("Received '%s'" % message)
-      try:
-        job = json.loads(message)
-        dispatchJob(job)
-      except Exception as exception:
-        print("Error occured. Can not parse JSON")
-        print(exception)
+      waitingForInputs = True
+      while waitingForInputs:
+        message = web_socket.recv()
+        print('Received '%s'' % message)
+        try:
+          job = json.loads(message)
+          enactJob(job)
+        except Exception as exception:
+          print('Error occured. Can not parse JSON')
+          print(exception)
 
 
-  except Exception as exception:
-    print("Connection error occured")
-    print(exception)
-    return False
+    except Exception as exception:
+      print('Connection error occured')
+      print(exception)
+
+  reconnect += 1
+  print('Lost connection to server')
+  time.sleep(5)
+  print('Try to reconnect')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   initController()
   startSocket()
-
-"""
-messageBody = json.loads(message)
-        chain = messageBody["chain"]
-        parameter = messageBody["parameter"]
-        value = messageBody["value"]
-        if parameter == 'switchChain':
-            subprocess.Popen(['./private_chain_scripts/switchChainToFrom.sh', str(chain), str(activeChainName)])
-        if parameter == 'numberOfHost':
-            path = "./private_chain_scripts/lazyNodes_{}.sh".format(
-                chain)
-            subprocess.Popen([str(path), str(value)])
-        if parameter == 'numberOfMiners':
-            path = "./private_chain_scripts/scale_{}.sh".format(
-                chain)
-            subprocess.Popen([str(path), str(value)])
-        if parameter == 'startChain':
-            activeChain = value
-            activeChainName = value
-            path = "./private_chain_scripts/start_{}.sh".format(
-                activeChainName)
-            subprocess.Popen(["bash", path])
-"""
