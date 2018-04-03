@@ -4,6 +4,7 @@ from websocket import create_connection, WebSocket
 import subprocess
 import socket
 import os
+import time
 
 
 config = {}
@@ -115,10 +116,10 @@ def startSocket():
       print('Connection error occured')
       print(exception)
 
-  reconnect += 1
-  print('Lost connection to server')
-  time.sleep(5)
-  print('Try to reconnect')
+    reconnect += 1
+    print('Lost connection to server')
+    time.sleep(5)
+    print('Try to reconnect')
 
 
 if __name__ == '__main__':
