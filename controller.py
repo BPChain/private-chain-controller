@@ -86,7 +86,8 @@ def startSocket():
         stopChain(activeChainName)
 
       print('Create connection')
-      hostname = socket.gethostname()
+      #hostname = socket.gethostname()
+      hostname = 'fsoc'
       web_socket = create_connection(config['url'])
       print('Connection established')
       print('Hostname: ' + hostname)
