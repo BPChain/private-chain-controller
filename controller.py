@@ -1,6 +1,6 @@
 import json
 from modules import yaml
-from websocket import create_connection, WebSocket
+from modules.websocket import create_connection, WebSocket
 import subprocess
 import socket
 import os
