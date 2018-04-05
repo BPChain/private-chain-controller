@@ -12,26 +12,26 @@ activeChainName = None
 
 def startChain(chainName):
   path = config['chainScripts']['start'].format(str(chainName))
-  subprocess.Popen([str(path)])
+  subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
   activeChainName = chainName
 
 def stopChain(chainName):
   path = config['chainScripts']['stop']
-  subprocess.Popen([str(path), str(chainName)])
+  subprocess.Popen([str(path), str(chainName)], stdout=open(os.devnull, 'wb'))
   activeChainName = None
 
 def switchChainTo(chainName):
   path = config['chainScripts']['switch']
-  subprocess.Popen([str(path), str(chainName), str(activeChainName)])
+  subprocess.Popen([str(path), str(chainName), str(activeChainName)], stdout=open(os.devnull, 'wb'))
   activeChainName = chainName
 
 def scaleHosts(chainName, value):
   path = config['chainScripts']['scaleLazy'].format(str(chainName))
-  subprocess.Popen([str(path), str(value)])
+  subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
 def scaleMiners(chainName, value):
   path = config['chainScripts']['scaleMiner'].format(str(chainName))
-  subprocess.Popen([str(path), str(value)])
+  subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
 def dispatchAction(chainName, parameter, value):
   if parameter == 'numberofhosts':
