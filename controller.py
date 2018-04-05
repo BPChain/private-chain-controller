@@ -11,26 +11,26 @@ config = {}
 activeChainName = None
 
 def startChain(chainName):
-  path = config['start'].format(str(chainName))
+  path = config['chainScripts']['start'].format(str(chainName))
   subprocess.Popen([str(path)])
   activeChainName = chainName
 
 def stopChain(chainName):
-  path = config['stop']
+  path = config['chainScripts']['stop']
   subprocess.Popen([str(path), str(chainName)])
   activeChainName = None
 
 def switchChainTo(chainName):
-  path = config['switch']
+  path = config['chainScripts']['switch']
   subprocess.Popen([str(path), str(chainName), str(activeChainName)])
   activeChainName = chainName
 
 def scaleHosts(chainName, value):
-  path = config[scaleLazy].format(chainName)
+  path = config['chainScripts']['scaleLazy'].format(str(chainName))
   subprocess.Popen([str(path), str(value)])
 
 def scaleMiners(chainName, value):
-  path = config[scaleMiner].format(chainName)
+  path = config['chainScripts']['scaleMiner'].format(str(chainName))
   subprocess.Popen([str(path), str(value)])
 
 def dispatchAction(chainName, parameter, value):
@@ -87,8 +87,7 @@ def startSocket():
         stopChain(activeChainName)
 
       print('Create connection')
-      #hostname = socket.gethostname()
-      hostname = 'fsoc'
+      hostname = socket.gethostname()
       web_socket = create_connection(config['url'])
       print('Connection established')
       print('Hostname: ' + hostname)
