@@ -58,13 +58,13 @@ def enactJob(job):
   for chain in (config['chains']):
     if chain['chainName'].lower() == job['chainName'].lower():
       chainName = chain['chainName']
-      for parameter in job['parameter']:
+      for parameter in job['parameters']:
         print(parameter)
         for availableParameter in chain['parameter']:
           if parameter.lower() == availableParameter['selector'].lower():
             selectedParameter = availableParameter['selector'].lower()
             try:
-              dispatchAction(chainName, selectedParameter, job['parameter'][availableParameter['selector']])
+              dispatchAction(chainName, selectedParameter, job['parameters'][availableParameter['selector']])
             except Exception as exception:
               print('Error occured when dispatching job')
 
