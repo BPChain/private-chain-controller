@@ -67,6 +67,7 @@ def enactJob(job):
               dispatchAction(chainName, selectedParameter, job['parameters'][availableParameter['selector']])
             except Exception as exception:
               print('Error occured when dispatching job')
+              print(exception)
 
 
 
