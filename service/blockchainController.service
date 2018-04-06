@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python /home/${USER}/bin/private-chain-controller/controller.py
+ExecStart=/usr/bin/python /home/%i/bin/private-chain-controller/controller.py
 Restart=on-abort
 
 [Install]
