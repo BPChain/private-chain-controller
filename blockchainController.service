@@ -1,0 +1,11 @@
+[Unit]
+Description=Blockchain Controller
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /home/${USER}/bin/private-chain-controller
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
