@@ -6,4 +6,4 @@ cp -v blockchainController.service /lib/systemd/system/blockchainController.serv
 sudo chmod 644 /lib/systemd/system/blockchainController.service
 sudo systemctl daemon-reload
 sudo systemctl enable blockchainController.service
-sudo systemctl start blockchainController@$USER.service
+sudo systemctl start blockchainController.service
