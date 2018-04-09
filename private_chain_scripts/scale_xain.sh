@@ -1,6 +1,8 @@
 #!/bin/bash
 # Scale to x nodes supplied as fist parameter
 
+export HOSTNAME
+
 cd /home/"$USER"/bin/private-xain/Node || exit
 
 let "scale_number=0"
