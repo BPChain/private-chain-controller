@@ -1,13 +1,10 @@
 # private-chain-controller
 
-# Check status
-sudo systemctl status blockchainController.service
-
 # Start service
-sudo systemctl start blockchainController.service
+```./startController.sh``` or ```python3 controller.py```
 
 # Stop service
-sudo systemctl stop blockchainController.service
+```./stopController.sh``` or use ```ps -ef | grep controller.py``` to determine the PID and then use ```kill```
 
 # Check service's log
-sudo journalctl -f -u blockchainController.service
+```cat logfile.log```

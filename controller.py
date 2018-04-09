@@ -16,7 +16,7 @@ activeChainName = None
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.propagate = False
-fh = logging.FileHandler("./docker-controller-log.log", "w")
+fh = logging.FileHandler("./logfile.log", "w")
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
