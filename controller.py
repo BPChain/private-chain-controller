@@ -1,4 +1,5 @@
 from modules.daemonize import daemonize
+from modules.exitFunct import exitFunct
 import json
 import logging
 from modules import yaml
@@ -137,9 +138,15 @@ def startSocket():
     time.sleep(5)
     logger.debug('Try to reconnect')
 
+def exit():
+  if activeChainName != None:
+    stopChain(activeChainName)
+
 def main():
   initController()
   startSocket()
+
+exitFunct.register_exit_fun(cleanup)
 
 daemon = daemonize.Daemonize(app="blockchainController", pid=pid, action=main, keep_fds=keep_fds)
 daemon.start()
