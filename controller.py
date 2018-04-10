@@ -1,4 +1,4 @@
-from modules import Daemonize
+from modules.daemonize import daemonize
 import json
 import logging
 from modules import yaml
@@ -141,5 +141,5 @@ def main():
   initController()
   startSocket()
 
-daemon = Daemonize(app="blockchainController", pid=pid, action=main, keep_fds=keep_fds)
+daemon = daemonize.Daemonize(app="blockchainController", pid=pid, action=main, keep_fds=keep_fds)
 daemon.start()
