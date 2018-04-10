@@ -18,7 +18,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.propagate = False
 fh = logging.FileHandler("./logfile.log", "w")
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 configFile = open(os.path.join(os.path.dirname(__file__), 'config.yaml'))
@@ -139,6 +141,10 @@ def startSocket():
     logger.debug('Try to reconnect')
 
 def exit():
+  logger.debug('Closing open files')
+  for file in keep_fds:
+    file.close()
+  logger.debug('Stopping active chain')
   if activeChainName != None:
     stopChain(activeChainName)
 
@@ -146,7 +152,7 @@ def main():
   initController()
   startSocket()
 
-exitFunct.register_exit_fun(cleanup)
+exitFunct.register_exit_fun(exit)
 
-daemon = daemonize.Daemonize(app="blockchainController", pid=pid, action=main, keep_fds=keep_fds)
+daemon = daemonize.Daemonize(app="blockchainController", pid=pid, action=main, keep_fds=keep_fds, chdir='./')
 daemon.start()
