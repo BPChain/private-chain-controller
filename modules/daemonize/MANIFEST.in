@@ -1,0 +1,6 @@
+include MANIFEST.in
+include README.rst
+include LICENSE
+
+graft docs
+recursive-exclude docs *.pyc *.pyo

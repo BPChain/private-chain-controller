@@ -1,4 +1,4 @@
-from daemonize import Daemonize
+from modules import Daemonize
 import json
 import logging
 from modules import yaml
