@@ -141,9 +141,6 @@ def startSocket():
     logger.debug('Try to reconnect')
 
 def exit():
-  logger.debug('Closing open files')
-  for file in keep_fds:
-    file.close()
   logger.debug('Stopping active chain')
   if activeChainName != None:
     stopChain(activeChainName)
