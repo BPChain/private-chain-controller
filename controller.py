@@ -12,7 +12,7 @@ import time
 pid = "./controller.pid"
 
 config = {}
-activeChainName = None
+activeChainNames = []
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -29,35 +29,31 @@ configFileId = configFile.fileno()
 keep_fds = [fh.stream.fileno(), configFileId]
 
 def startChain(chainName):
-  global activeChainName
+  global activeChainNames
   path = config['chainScripts']['start'].format(str(chainName))
   subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
-  activeChainName = chainName
+  activeChainNames.append(chainName)
 
 def stopChain(chainName):
-  global activeChainName
+  global activeChainNames
   path = config['chainScripts']['stop']
   subprocess.Popen([str(path), str(chainName)], stdout=open(os.devnull, 'wb'))
-  activeChainName = None
-
-def switchChainTo(chainName):
-  global activeChainName
-  path = config['chainScripts']['switch']
-  subprocess.Popen([str(path), str(chainName), str(activeChainName)], stdout=open(os.devnull, 'wb'))
-  activeChainName = chainName
+  activeChainNames.remove(chainName)
 
 def scaleHosts(chainName, value):
-  global activeChainName
-  path = config['chainScripts']['scaleLazy'].format(str(chainName))
-  subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
+  global activeChainNames
+  if chainName in activeChainNames:
+    path = config['chainScripts']['scaleLazy'].format(str(chainName))
+    subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
 def scaleMiners(chainName, value):
-  global activeChainName
-  path = config['chainScripts']['scaleMiner'].format(str(chainName))
-  subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
+  global activeChainNames
+  if chainName in activeChainNames:
+    path = config['chainScripts']['scaleMiner'].format(str(chainName))
+    subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
 def dispatchAction(chainName, parameter, value):
-  global activeChainName
+  global activeChainNames
   if parameter == 'numberofhosts':
     logger.debug('Scale ' + chainName + ' hosts to ' + value)
     scaleHosts(chainName, value)
@@ -74,12 +70,8 @@ def dispatchAction(chainName, parameter, value):
     logger.debug('Stop ' + chainName)
     stopChain(chainName)
 
-  if parameter == 'switchchain':
-    logger.debug('Switch ' + activeChainName + ' to ' + chainName)
-    switchChainTo(chainName)
-
 def enactJob(job):
-  global activeChainName
+  global activeChainNames
   for chain in (config['chains']):
     if chain['chainName'].lower() == job['chainName'].lower():
       chainName = chain['chainName']
@@ -105,12 +97,13 @@ def initController():
     logger.debug(exception)
 
 def startSocket():
-  global activeChainName
+  global activeChainNames
   reconnect = 0
   while(reconnect < 20):
     try:
-      if activeChainName != None:
-        stopChain(activeChainName)
+      if activeChainNames:
+        for chain in activeChainNames:
+          stopChain(chain)
 
       logger.debug('Create connection')
       hostname = socket.gethostname()
@@ -149,10 +142,11 @@ def startSocket():
     logger.debug('Try to reconnect')
 
 def exit():
-  global activeChainName
+  global activeChainNames
   logger.debug('Stopping active chains')
-  if activeChainName is not None:
-    stopChain(activeChainName)
+  if not activeChainNames:
+    for chain in activeChainNames:
+      stopChain(chain)
 
 def main():
   initController()

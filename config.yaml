@@ -3,7 +3,6 @@ url: wss://bpt-lab.org/bp2017w1-controller
 chainScripts:
   start: ./private_chain_scripts/start_{}.sh
   stop: ./private_chain_scripts/stopChain.sh
-  switch: ./private_chain_scripts/switchChainToFrom.sh
   scaleMiner: ./private_chain_scripts/scale_{}.sh
   scaleLazy: ./private_chain_scripts/lazyNodes_{}.sh
 
@@ -17,7 +16,6 @@ chains:
     name: Number of miners
   - selector: startChain
   - selector: stopChain
-  - selector: switchChain
 
 - chainName: xain
   parameter:
@@ -27,7 +25,6 @@ chains:
     name: Number of miners
   - selector: startChain
   - selector: stopChain
-  - selector: switchChain
 
 - chainName: multichain
   parameter:
@@ -37,4 +34,3 @@ chains:
     name: Number of miners
   - selector: startChain
   - selector: stopChain
-  - selector: switchChain
