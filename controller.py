@@ -29,29 +29,35 @@ configFileId = configFile.fileno()
 keep_fds = [fh.stream.fileno(), configFileId]
 
 def startChain(chainName):
+  global activeChainName
   path = config['chainScripts']['start'].format(str(chainName))
   subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
   activeChainName = chainName
 
 def stopChain(chainName):
+  global activeChainName
   path = config['chainScripts']['stop']
   subprocess.Popen([str(path), str(chainName)], stdout=open(os.devnull, 'wb'))
   activeChainName = None
 
 def switchChainTo(chainName):
+  global activeChainName
   path = config['chainScripts']['switch']
   subprocess.Popen([str(path), str(chainName), str(activeChainName)], stdout=open(os.devnull, 'wb'))
   activeChainName = chainName
 
 def scaleHosts(chainName, value):
+  global activeChainName
   path = config['chainScripts']['scaleLazy'].format(str(chainName))
   subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
 def scaleMiners(chainName, value):
+  global activeChainName
   path = config['chainScripts']['scaleMiner'].format(str(chainName))
   subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
 def dispatchAction(chainName, parameter, value):
+  global activeChainName
   if parameter == 'numberofhosts':
     logger.debug('Scale ' + chainName + ' hosts to ' + value)
     scaleHosts(chainName, value)
@@ -73,6 +79,7 @@ def dispatchAction(chainName, parameter, value):
     switchChainTo(chainName)
 
 def enactJob(job):
+  global activeChainName
   for chain in (config['chains']):
     if chain['chainName'].lower() == job['chainName'].lower():
       chainName = chain['chainName']
@@ -98,6 +105,7 @@ def initController():
     logger.debug(exception)
 
 def startSocket():
+  global activeChainName
   reconnect = 0
   while(reconnect < 20):
     try:
@@ -141,8 +149,9 @@ def startSocket():
     logger.debug('Try to reconnect')
 
 def exit():
-  logger.debug('Stopping active chain')
-  if activeChainName != None:
+  global activeChainName
+  logger.debug('Stopping active chains')
+  if activeChainName is not None:
     stopChain(activeChainName)
 
 def main():
