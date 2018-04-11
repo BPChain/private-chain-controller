@@ -6,6 +6,10 @@ chainScripts:
   scaleMiner: ./private_chain_scripts/scale_{}.sh
   scaleLazy: ./private_chain_scripts/lazyNodes_{}.sh
 
+ethereumPort: 20000
+multichainPort: 200000
+xainPort: 20000
+
 
 chains:
 - chainName: ethereum
@@ -16,6 +20,7 @@ chains:
     name: Number of miners
   - selector: startChain
   - selector: stopChain
+  - selector: scenario
 
 - chainName: xain
   parameter:
@@ -25,6 +30,7 @@ chains:
     name: Number of miners
   - selector: startChain
   - selector: stopChain
+  - selector: scenario
 
 - chainName: multichain
   parameter:
@@ -34,3 +40,4 @@ chains:
     name: Number of miners
   - selector: startChain
   - selector: stopChain
+  - selector: scenario

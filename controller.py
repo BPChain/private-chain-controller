@@ -52,6 +52,17 @@ def scaleMiners(chainName, value):
     path = config['chainScripts']['scaleMiner'].format(str(chainName))
     subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
+def setScenarioParameters(chainName, frequency, payloadSize):
+  global activeChainNames
+  if chainName in activeChainNames:
+    logger.debug('Setting'+ chainName + 'frequency to: ' + frequency)
+    logger.debug('Setting'+ chainName + 'payloadSize to: ' + payloadSize)
+    port = config['{}Port'.format(chainName)]
+    ws = create_connection("ws://localhost:{}".format(port))
+    data = json.dumps({"frequency": frequency, "payloadSize": payloadSize})
+    ws.send(data)
+    ws.close()
+
 def dispatchAction(chainName, parameter, value):
   global activeChainNames
   if parameter == 'numberofhosts':
@@ -69,6 +80,10 @@ def dispatchAction(chainName, parameter, value):
   if parameter == 'stopchain':
     logger.debug('Stop ' + chainName)
     stopChain(chainName)
+
+  if parameter == 'scenario':
+    logger.debug('Sending scenario parameters to ' + chainName)
+    setScenarioParameters(chainName, value['frequency'], value['payloadSize'])
 
 def enactJob(job):
   global activeChainNames
