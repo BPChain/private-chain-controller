@@ -36,8 +36,8 @@ def startChain(chainName):
 
 def stopChain(chainName):
   global activeChainNames
-  path = config['chainScripts']['stop']
-  subprocess.Popen([str(path), str(chainName)], stdout=open(os.devnull, 'wb'))
+  path = config['chainScripts']['stop'].format(str(chainName))
+  subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
   activeChainNames.remove(chainName)
 
 def scaleHosts(chainName, value):
