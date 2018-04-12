@@ -7,7 +7,7 @@ chainScripts:
   scaleLazy: ./private_chain_scripts/lazyNodes_{}.sh
 
 ethereumPort: 20000
-multichainPort: 200000
+multichainPort: 21000
 xainPort: 20000
 
 

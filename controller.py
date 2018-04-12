@@ -52,14 +52,14 @@ def scaleMiners(chainName, value):
     path = config['chainScripts']['scaleMiner'].format(str(chainName))
     subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
 
-def setScenarioParameters(chainName, frequency, payloadSize):
+def setScenarioParameters(chainName, period, payloadSize):
   global activeChainNames
   if chainName in activeChainNames:
-    logger.debug('Setting'+ chainName + 'frequency to: ' + frequency)
+    logger.debug('Setting'+ chainName + 'period to: ' + period)
     logger.debug('Setting'+ chainName + 'payloadSize to: ' + payloadSize)
     port = config['{}Port'.format(chainName)]
     ws = create_connection("ws://localhost:{}".format(port))
-    data = json.dumps({"frequency": frequency, "payloadSize": payloadSize})
+    data = json.dumps({"period": period, "payloadSize": payloadSize})
     ws.send(data)
     ws.close()
 
@@ -83,7 +83,7 @@ def dispatchAction(chainName, parameter, value):
 
   if parameter == 'scenario':
     logger.debug('Sending scenario parameters to ' + chainName)
-    setScenarioParameters(chainName, value['frequency'], value['payloadSize'])
+    setScenarioParameters(chainName, value['period'], value['payloadSize'])
 
 def enactJob(job):
   global activeChainNames
@@ -159,7 +159,7 @@ def startSocket():
 def exit():
   global activeChainNames
   logger.debug('Stopping active chains')
-  if not activeChainNames:
+  if activeChainNames:
     for chain in activeChainNames:
       stopChain(chain)
 
