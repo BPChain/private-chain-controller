@@ -4,6 +4,6 @@
 
 export HOSTNAME
 
-cd /home/"$USER"/bin/private-ethereum/Node || exit
+cd private-ethereum/Node || exit
 
 docker-compose scale eth_lazy="$1"

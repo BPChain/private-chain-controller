@@ -4,6 +4,6 @@
 
 export HOSTNAME
 
-cd /home/"$USER"/bin/private-xain/Node || exit
+cd private-xain/Node || exit
 
 docker-compose scale xain_lazy="$1"
