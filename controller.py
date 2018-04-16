@@ -55,8 +55,8 @@ def scaleMiners(chainName, value):
 def setScenarioParameters(chainName, period, payloadSize):
   global activeChainNames
   if chainName in activeChainNames:
-    logger.debug('Setting'+ chainName + 'period to: ' + period)
-    logger.debug('Setting'+ chainName + 'payloadSize to: ' + payloadSize)
+    logger.debug('Setting '+ chainName + ' period to: ' + str(period))
+    logger.debug('Setting '+ chainName + ' payloadSize to: ' + str(payloadSize))
     port = config['{}Port'.format(chainName)]
     ws = create_connection("ws://localhost:{}".format(port))
     data = json.dumps({"period": period, "payloadSize": payloadSize})
