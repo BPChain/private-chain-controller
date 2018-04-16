@@ -1,3 +1,4 @@
+"""Controller to handle all blockchains in the backend and connect to the aggregation server"""
 import json
 import logging
 import os
@@ -29,6 +30,9 @@ CONFIG_FILE_ID = CONFIG_FILE.fileno()
 
 KEEP_FDS = [FH.stream.fileno(), CONFIG_FILE_ID]
 
+# pylint: disable=broad-except
+# pylint: disable=global-statement
+# pylint: disable=too-many-nested-blocks
 
 def start_chain(chain_name):
     """Start a given chain."""
@@ -72,33 +76,33 @@ def set_scenario_parameters(chain_name, period, payload_size):
         LOGGER.debug('Setting ' + chain_name +
                      ' payloadSize to: ' + str(payload_size))
         port = CONFIG['{}Port'.format(chain_name)]
-        ws = create_connection("ws://localhost:{}".format(port))
+        docker_websocket = create_connection("ws://localhost:{}".format(port))
         data = json.dumps({"period": period, "payloadSize": payload_size})
-        ws.send(data)
-        ws.close()
+        docker_websocket.send(data)
+        docker_websocket.close()
 
 
 def dispatch_action(chain_name, parameter, value):
     """Dispatch the parameters and values to the chain."""
     global ACTIVE_CHAIN_NAMES
     if parameter == 'numberofhosts':
-        LOGGER.debug('Scale ' + chain_name + ' hosts to ' + value)
+        LOGGER.debug('Scale %s hosts to %d', chain_name, value)
         scale_hosts(chain_name, value)
 
     if parameter == 'numberofminers':
-        LOGGER.debug('Scale ' + chain_name + ' miners to ' + value)
+        LOGGER.debug('Scale %s miners to %d', chain_name, value)
         scale_miners(chain_name, value)
 
     if parameter == 'startchain':
-        LOGGER.debug('Start ' + chain_name)
+        LOGGER.debug('Start %s', chain_name)
         start_chain(chain_name)
 
     if parameter == 'stopchain':
-        LOGGER.debug('Stop ' + chain_name)
+        LOGGER.debug('Stop %s', chain_name)
         stop_chain(chain_name)
 
     if parameter == 'scenario':
-        LOGGER.debug('Sending scenario parameters to ' + chain_name)
+        LOGGER.debug('Sending scenario parameters to %s', chain_name)
         set_scenario_parameters(chain_name, value['period'], value['payloadSize'])
 
 
@@ -148,7 +152,7 @@ def start_socket():
             hostname = socket.gethostname()
             web_socket = create_connection(CONFIG['url'])
             LOGGER.debug('Connection established')
-            LOGGER.debug('Hostname: ' + hostname)
+            LOGGER.debug('Hostname: %s', hostname)
             reconnect = 0
             LOGGER.debug('Send chain configuration options')
             data = {
@@ -161,7 +165,7 @@ def start_socket():
             waiting_for_inputs = True
             while waiting_for_inputs:
                 message = web_socket.recv()
-                LOGGER.debug('Received ' + message)
+                LOGGER.debug('Received %s', message)
                 try:
                     job = json.loads(message)
                     enact_job(job)
@@ -196,6 +200,6 @@ def main():
 
 exitFunct.register_exit_fun(exit_controller)
 
-daemon = daemonize.Daemonize(
+DAEMON = daemonize.Daemonize(
     app="blockchainController", pid=PID, action=main, keep_fds=KEEP_FDS, chdir='./')
-daemon.start()
+DAEMON.start()
