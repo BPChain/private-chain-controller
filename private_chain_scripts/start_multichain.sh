@@ -3,4 +3,5 @@
 
 export HOSTNAME
 cd private-multichain || exit
-docker-compose up --build
+docker-compose up --build --force-recreate
+echo "start multichaaaaaaain"

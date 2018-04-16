@@ -38,6 +38,7 @@ def start_chain(chain_name):
     """Start a given chain."""
     global ACTIVE_CHAIN_NAMES
     path = CONFIG['chainScripts']['start'].format(str(chain_name))
+    LOGGER.info("path %s", path)
     subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
     ACTIVE_CHAIN_NAMES.append(chain_name)
 
