@@ -2,4 +2,4 @@
 # Removes multichain
 
 cd private-multichain || exit
-docker-compose down --remove-orphans
+docker-compose down

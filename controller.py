@@ -4,11 +4,11 @@ import logging
 import os
 import subprocess
 import socket
+import atexit
 import time
-from modules.daemonize import daemonize
-from modules.exitFunct import exitFunct
-from modules import yaml
-from modules.websocket import create_connection
+import daemonize
+import yaml
+from websocket import create_connection
 
 PID = "./controller.pid"
 
@@ -39,7 +39,9 @@ def start_chain(chain_name):
     global ACTIVE_CHAIN_NAMES
     path = CONFIG['chainScripts']['start'].format(str(chain_name))
     LOGGER.info("path %s", path)
-    subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
+    result = subprocess.run([str(path)], stdout=subprocess.PIPE)
+    LOGGER.info("return code %d", result.returncode)
+    LOGGER.info(result)
     ACTIVE_CHAIN_NAMES.append(chain_name)
 
 
@@ -188,9 +190,8 @@ def exit_controller():
     """Exit from the controller and stop all active chains."""
     global ACTIVE_CHAIN_NAMES
     LOGGER.debug('Stopping active chains')
-    if ACTIVE_CHAIN_NAMES:
-        for chain in ACTIVE_CHAIN_NAMES:
-            stop_chain(chain)
+    for chain in ACTIVE_CHAIN_NAMES:
+        stop_chain(chain)
 
 
 def main():
@@ -199,8 +200,10 @@ def main():
     start_socket()
 
 
-exitFunct.register_exit_fun(exit_controller)
+atexit.register(exit_controller)
 
 DAEMON = daemonize.Daemonize(
     app="blockchainController", pid=PID, action=main, keep_fds=KEEP_FDS, chdir='./')
 DAEMON.start()
+
+
