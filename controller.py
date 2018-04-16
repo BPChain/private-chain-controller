@@ -1,173 +1,205 @@
-from modules.daemonize import daemonize
-from modules.exitFunct import exitFunct
+"""Controller to handle all blockchains in the backend and connect to the aggregation server"""
 import json
 import logging
-from modules import yaml
-from modules.websocket import create_connection, WebSocket
+import os
 import subprocess
 import socket
-import os
 import time
+from modules.daemonize import daemonize
+from modules.exitFunct import exitFunct
+from modules import yaml
+from modules.websocket import create_connection
 
-pid = "./controller.pid"
+PID = "./controller.pid"
 
-config = {}
-activeChainNames = []
+CONFIG = {}
+ACTIVE_CHAIN_NAMES = []
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.propagate = False
-fh = logging.FileHandler("./logfile.log", "w")
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-fh.setLevel(logging.DEBUG)
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
+LOGGER.propagate = False
+FH = logging.FileHandler("./logfile.log", "w")
+FORMATTER = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+FH.setLevel(logging.DEBUG)
+FH.setFormatter(FORMATTER)
+LOGGER.addHandler(FH)
 
-configFile = open(os.path.join(os.path.dirname(__file__), 'config.yaml'))
-configFileId = configFile.fileno()
+CONFIG_FILE = open(os.path.join(os.path.dirname(__file__), 'config.yaml'))
+CONFIG_FILE_ID = CONFIG_FILE.fileno()
 
-keep_fds = [fh.stream.fileno(), configFileId]
+KEEP_FDS = [FH.stream.fileno(), CONFIG_FILE_ID]
 
-def startChain(chainName):
-  global activeChainNames
-  path = config['chainScripts']['start'].format(str(chainName))
-  subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
-  activeChainNames.append(chainName)
+# pylint: disable=broad-except
+# pylint: disable=global-statement
+# pylint: disable=too-many-nested-blocks
 
-def stopChain(chainName):
-  global activeChainNames
-  path = config['chainScripts']['stop'].format(str(chainName))
-  subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
-  activeChainNames.remove(chainName)
-
-def scaleHosts(chainName, value):
-  global activeChainNames
-  if chainName in activeChainNames:
-    path = config['chainScripts']['scaleLazy'].format(str(chainName))
-    subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
-
-def scaleMiners(chainName, value):
-  global activeChainNames
-  if chainName in activeChainNames:
-    path = config['chainScripts']['scaleMiner'].format(str(chainName))
-    subprocess.Popen([str(path), str(value)], stdout=open(os.devnull, 'wb'))
-
-def setScenarioParameters(chainName, period, payloadSize):
-  global activeChainNames
-  if chainName in activeChainNames:
-    logger.debug('Setting '+ chainName + ' period to: ' + str(period))
-    logger.debug('Setting '+ chainName + ' payloadSize to: ' + str(payloadSize))
-    port = config['{}Port'.format(chainName)]
-    ws = create_connection("ws://localhost:{}".format(port))
-    data = json.dumps({"period": period, "payloadSize": payloadSize})
-    ws.send(data)
-    ws.close()
-
-def dispatchAction(chainName, parameter, value):
-  global activeChainNames
-  if parameter == 'numberofhosts':
-    logger.debug('Scale ' + chainName + ' hosts to ' + value)
-    scaleHosts(chainName, value)
-
-  if parameter == 'numberofminers':
-    logger.debug('Scale ' + chainName + ' miners to ' + value)
-    scaleMiners(chainName, value)
-
-  if parameter == 'startchain':
-    logger.debug('Start ' + chainName)
-    startChain(chainName)
-
-  if parameter == 'stopchain':
-    logger.debug('Stop ' + chainName)
-    stopChain(chainName)
-
-  if parameter == 'scenario':
-    logger.debug('Sending scenario parameters to ' + chainName)
-    setScenarioParameters(chainName, value['period'], value['payloadSize'])
-
-def enactJob(job):
-  global activeChainNames
-  for chain in (config['chains']):
-    if chain['chainName'].lower() == job['chainName'].lower():
-      chainName = chain['chainName']
-      for parameter in job['parameters']:
-        logger.debug(parameter)
-        for availableParameter in chain['parameter']:
-          if parameter.lower() == availableParameter['selector'].lower():
-            selectedParameter = availableParameter['selector'].lower()
-            try:
-              dispatchAction(chainName, selectedParameter, job['parameters'][availableParameter['selector']])
-            except Exception as exception:
-              logger.debug('Error occured when dispatching job')
-              logger.debug(exception)
+def start_chain(chain_name):
+    """Start a given chain."""
+    global ACTIVE_CHAIN_NAMES
+    path = CONFIG['chainScripts']['start'].format(str(chain_name))
+    subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
+    ACTIVE_CHAIN_NAMES.append(chain_name)
 
 
+def stop_chain(chain_name):
+    """Stop a given chain."""
+    global ACTIVE_CHAIN_NAMES
+    path = CONFIG['chainScripts']['stop'].format(str(chain_name))
+    subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
+    ACTIVE_CHAIN_NAMES.remove(chain_name)
 
-def initController():
-  try:
-    global config
-    config = yaml.safe_load(configFile)
-  except Exception as exception:
-    logger.debug('Error occured while parsing config.yaml')
-    logger.debug(exception)
 
-def startSocket():
-  global activeChainNames
-  reconnect = 0
-  while(reconnect < 20):
+def scale_hosts(chain_name, value):
+    """Scale the number of Hosts"""
+    global ACTIVE_CHAIN_NAMES
+    if chain_name in ACTIVE_CHAIN_NAMES:
+        path = CONFIG['chainScripts']['scaleLazy'].format(str(chain_name))
+        subprocess.Popen([str(path), str(value)],
+                         stdout=open(os.devnull, 'wb'))
+
+
+def scale_miners(chain_name, value):
+    """Scale the number of Miners."""
+    global ACTIVE_CHAIN_NAMES
+    if chain_name in ACTIVE_CHAIN_NAMES:
+        path = CONFIG['chainScripts']['scaleMiner'].format(str(chain_name))
+        subprocess.Popen([str(path), str(value)],
+                         stdout=open(os.devnull, 'wb'))
+
+
+def set_scenario_parameters(chain_name, period, payload_size):
+    """Set scenario period and payloadSize."""
+    global ACTIVE_CHAIN_NAMES
+    if chain_name in ACTIVE_CHAIN_NAMES:
+        LOGGER.debug('Setting ' + chain_name + ' period to: ' + str(period))
+        LOGGER.debug('Setting ' + chain_name +
+                     ' payloadSize to: ' + str(payload_size))
+        port = CONFIG['{}Port'.format(chain_name)]
+        docker_websocket = create_connection("ws://localhost:{}".format(port))
+        data = json.dumps({"period": period, "payloadSize": payload_size})
+        docker_websocket.send(data)
+        docker_websocket.close()
+
+
+def dispatch_action(chain_name, parameter, value):
+    """Dispatch the parameters and values to the chain."""
+    global ACTIVE_CHAIN_NAMES
+    if parameter == 'numberofhosts':
+        LOGGER.debug('Scale %s hosts to %d', chain_name, value)
+        scale_hosts(chain_name, value)
+
+    if parameter == 'numberofminers':
+        LOGGER.debug('Scale %s miners to %d', chain_name, value)
+        scale_miners(chain_name, value)
+
+    if parameter == 'startchain':
+        LOGGER.debug('Start %s', chain_name)
+        start_chain(chain_name)
+
+    if parameter == 'stopchain':
+        LOGGER.debug('Stop %s', chain_name)
+        stop_chain(chain_name)
+
+    if parameter == 'scenario':
+        LOGGER.debug('Sending scenario parameters to %s', chain_name)
+        set_scenario_parameters(chain_name, value['period'], value['payloadSize'])
+
+
+def enact_job(job):
+    """Enact the retrieved job on the given chain."""
+    global ACTIVE_CHAIN_NAMES
+    for chain in CONFIG['chains']:
+        if chain['chainName'].lower() == job['chainName'].lower():
+            chain_name = chain['chainName']
+            for parameter in job['parameters']:
+                LOGGER.debug(parameter)
+                for available_parameter in chain['parameter']:
+                    if parameter.lower() == available_parameter['selector'].lower():
+                        selected_parameter = available_parameter['selector'].lower(
+                        )
+                        try:
+                            dispatch_action(
+                                chain_name,
+                                selected_parameter,
+                                job['parameters'][available_parameter['selector']])
+                        except Exception as exception:
+                            LOGGER.debug('Error occured when dispatching job')
+                            LOGGER.debug(exception)
+
+
+def init_controller():
+    """Load and parse the config file."""
     try:
-      if activeChainNames:
-        for chain in activeChainNames:
-          stopChain(chain)
-
-      logger.debug('Create connection')
-      hostname = socket.gethostname()
-      web_socket = create_connection(config['url'])
-      logger.debug('Connection established')
-      logger.debug('Hostname: ' + hostname)
-      reconnect = 0
-      logger.debug('Send chain configuration options')
-      data = {
-        'target': hostname,
-        'chains': config['chains'],
-      }
-      web_socket.send(json.dumps(data))
-      logger.debug('Chain configuration options sent')
-
-
-      waitingForInputs = True
-      while waitingForInputs:
-        message = web_socket.recv()
-        logger.debug('Received ' + message)
-        try:
-          job = json.loads(message)
-          enactJob(job)
-        except Exception as exception:
-          logger.debug('Error occured. Can not parse JSON')
-          logger.debug(exception)
-
-
+        global CONFIG
+        CONFIG = yaml.safe_load(CONFIG_FILE)
     except Exception as exception:
-      logger.debug('Connection error occured')
-      logger.debug(exception)
+        LOGGER.debug('Error occured while parsing config.yaml')
+        LOGGER.debug(exception)
 
-    reconnect += 1
-    logger.debug('Lost connection to server')
-    time.sleep(5)
-    logger.debug('Try to reconnect')
 
-def exit():
-  global activeChainNames
-  logger.debug('Stopping active chains')
-  if activeChainNames:
-    for chain in activeChainNames:
-      stopChain(chain)
+def start_socket():
+    """Start the websocket and connect to the API Server."""
+    global ACTIVE_CHAIN_NAMES
+    reconnect = 0
+    while reconnect < 20:
+        try:
+            if ACTIVE_CHAIN_NAMES:
+                for chain in ACTIVE_CHAIN_NAMES:
+                    stop_chain(chain)
+
+            LOGGER.debug('Create connection')
+            hostname = socket.gethostname()
+            web_socket = create_connection(CONFIG['url'])
+            LOGGER.debug('Connection established')
+            LOGGER.debug('Hostname: %s', hostname)
+            reconnect = 0
+            LOGGER.debug('Send chain configuration options')
+            data = {
+                'target': hostname,
+                'chains': CONFIG['chains'],
+            }
+            web_socket.send(json.dumps(data))
+            LOGGER.debug('Chain configuration options sent')
+
+            waiting_for_inputs = True
+            while waiting_for_inputs:
+                message = web_socket.recv()
+                LOGGER.debug('Received %s', message)
+                try:
+                    job = json.loads(message)
+                    enact_job(job)
+                except Exception as exception:
+                    LOGGER.debug('Error occured. Can not parse JSON')
+                    LOGGER.debug(exception)
+
+        except Exception as exception:
+            LOGGER.debug('Connection error occured')
+            LOGGER.debug(exception)
+
+        reconnect += 1
+        LOGGER.debug('Lost connection to server')
+        time.sleep(5)
+        LOGGER.debug('Try to reconnect')
+
+
+def exit_controller():
+    """Exit from the controller and stop all active chains."""
+    global ACTIVE_CHAIN_NAMES
+    LOGGER.debug('Stopping active chains')
+    if ACTIVE_CHAIN_NAMES:
+        for chain in ACTIVE_CHAIN_NAMES:
+            stop_chain(chain)
+
 
 def main():
-  initController()
-  startSocket()
+    """Main method to init the controller and start the websocket."""
+    init_controller()
+    start_socket()
 
-exitFunct.register_exit_fun(exit)
 
-daemon = daemonize.Daemonize(app="blockchainController", pid=pid, action=main, keep_fds=keep_fds, chdir='./')
-daemon.start()
+exitFunct.register_exit_fun(exit_controller)
+
+DAEMON = daemonize.Daemonize(
+    app="blockchainController", pid=PID, action=main, keep_fds=KEEP_FDS, chdir='./')
+DAEMON.start()
