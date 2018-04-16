@@ -4,4 +4,4 @@
 export HOSTNAME
 
 cd private-xain/Node || exit
-docker-compose up --build
+docker-compose --build --force-recreate -d
