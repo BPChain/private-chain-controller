@@ -205,5 +205,3 @@ atexit.register(exit_controller)
 DAEMON = daemonize.Daemonize(
     app="blockchainController", pid=PID, action=main, keep_fds=KEEP_FDS, chdir='./')
 DAEMON.start()
-
-
