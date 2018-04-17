@@ -1,4 +1,5 @@
 daemonize==2.4.7
+docker==2.0.0
 PyYAML==3.12
 six==1.11.0
 websocket-client==0.47.0
