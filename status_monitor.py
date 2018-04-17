@@ -59,13 +59,13 @@ def start_socket():
             LOGGER.error(exception)
 
         reconnect += 1
-        LOGGER.warn('Lost connection to server')
+        LOGGER.warning('Lost connection to server')
         time.sleep(5)
-        LOGGER.warn('Try to reconnect')
+        LOGGER.warning('Try to reconnect')
 
 
 def check_docker_state(websocket):
-    LOGGER.trace('Start check_docker_state')
+    LOGGER.info('Start check_docker_state')
     client = docker.from_env()
     docker_state = {
         'ethereum': {
@@ -82,7 +82,7 @@ def check_docker_state(websocket):
         },
     }
 
-    LOGGER.trace(docker_state)
+    LOGGER.info(docker_state)
 
     while True:
         for container in client.containers.list():
@@ -100,7 +100,7 @@ def check_docker_state(websocket):
                 docker_state['multichain']['miners'] += 1
                 docker_state['multichain']['hosts'] += 1
         LOGGER.debug(docker_state)
-    LOGGER.trace('End check_docker_state')
+    LOGGER.info('End check_docker_state')
 
 
 def main():
