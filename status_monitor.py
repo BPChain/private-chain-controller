@@ -67,6 +67,7 @@ def start_socket():
 def check_docker_state(websocket):
     LOGGER.info('Start check_docker_state')
     client = docker.from_env()
+    LOGGER.info(client.containers.list())
     docker_state = {
         'ethereum': {
             'miners': 0,
