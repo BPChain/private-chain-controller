@@ -50,20 +50,22 @@ def start_socket():
                 'monitor': hostname,
             }
             web_socket.send(json.dumps(data))
+            LOGGER.debug('Register completed')
 
             check_docker_state(web_socket)
 
         except Exception as exception:
-            LOGGER.debug('Connection error occured')
-            LOGGER.debug(exception)
+            LOGGER.error('Connection error occured')
+            LOGGER.error(exception)
 
         reconnect += 1
-        LOGGER.debug('Lost connection to server')
+        LOGGER.warn('Lost connection to server')
         time.sleep(5)
-        LOGGER.debug('Try to reconnect')
+        LOGGER.warn('Try to reconnect')
 
 
 def check_docker_state(websocket):
+    LOGGER.trace('Start check_docker_state')
     client = docker.from_env()
     docker_state = {
         'ethereum': {
@@ -79,6 +81,8 @@ def check_docker_state(websocket):
             'hosts': 0,
         },
     }
+
+    LOGGER.trace(docker_state)
 
     while True:
         for container in client.containers.list():
@@ -96,6 +100,8 @@ def check_docker_state(websocket):
                 docker_state['multichain']['miners'] += 1
                 docker_state['multichain']['hosts'] += 1
         LOGGER.debug(docker_state)
+    LOGGER.trace('End check_docker_state')
+
 
 def main():
     """Main method to init the controller and start the websocket."""
@@ -103,8 +109,9 @@ def main():
         global CONFIG
         CONFIG = yaml.safe_load(CONFIG_FILE)
     except Exception as exception:
-        LOGGER.debug('Error occured while parsing config.yaml')
-        LOGGER.debug(exception)
+        LOGGER.error('Error occured while parsing config.yaml')
+        LOGGER.error(exception)
+    start_socket()
 
 
 DAEMON = daemonize.Daemonize(
