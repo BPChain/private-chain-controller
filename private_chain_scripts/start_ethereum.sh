@@ -4,4 +4,4 @@
 export HOSTNAME
 
 cd private-ethereum/Node || exit
-docker-compose up --build --force-recreate -d
+docker-compose up --force-recreate -d

@@ -1,5 +1,6 @@
 #!/bin/bash
 echo "Running setup"
+echo "If there are existing images, manually run docker-compose up --build once"
 export LC_ALL=C
 if [ ! -d "virtualenv" ]; then
     echo "Creating virtual python environment..."
