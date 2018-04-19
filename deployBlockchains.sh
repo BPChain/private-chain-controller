@@ -1,8 +1,15 @@
 #!/bin/bash
-echo "Creating blockains directory"
-python3 -m venv ./virtualenv
+echo "Running setup"
+export LC_ALL=C
+if [ ! -d "virtualenv" ]; then
+    echo "Creating virtual python environment..."
+	python3 -m venv ./virtualenv
+fi
+echo "Activating virtual python environment..."
 source virtualenv/bin/activate
-pip3 install -r requirements.txt 
+echo "Installing Python requirements"
+pip3 install -r requirements.txt
+echo "Downloading and updating Blockchains"
 if [ ! -d "private-xain" ]; then
 	git clone https://github.com/BPChain/private-xain.git -b dev
 else
@@ -24,5 +31,5 @@ else
     git pull
     cd ..
 fi
-
-./startController.sh
+echo "Starting Controller"
+python3 controller.py || exit
