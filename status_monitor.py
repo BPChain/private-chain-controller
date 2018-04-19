@@ -103,7 +103,7 @@ def check_docker_state(websocket):
                 docker_state['multichain']['miners'] += 1
                 docker_state['multichain']['hosts'] += 1
         LOGGER.debug(docker_state)
-        if previous_docker_state == docker_state:
+        if (docker_state>previous_docker_state)-(docker_state<previous_docker_state) == 0:
           LOGGER.debug('Docker state stayed the same')
         else:
           LOGGER.debug('Docker state changed')
