@@ -3,9 +3,7 @@ import copy
 import json
 import logging
 import os
-import subprocess
 import socket
-import atexit
 import time
 import daemonize
 import docker
@@ -13,6 +11,7 @@ import yaml
 from websocket import create_connection
 
 PID = "./status_monitor.pid"
+CONFIG = {}
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
@@ -66,6 +65,8 @@ def start_socket():
 
 
 def check_docker_state(web_socket):
+    """Check the current state of all supported docker
+    containers and report them to the websocket"""
     LOGGER.info('Start check_docker_state')
     client = docker.from_env()
     LOGGER.info(client.containers.list())
