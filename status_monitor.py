@@ -1,4 +1,5 @@
 """Monitor to report on all blockchain docker controllers"""
+import copy
 import json
 import logging
 import os
@@ -48,7 +49,7 @@ def start_socket():
                 "monitor": hostname,
                 "chains": CONFIG["chains"]
             }
-            # web_socket.send(json.dumps(data))
+            web_socket.send(json.dumps(data))
             LOGGER.debug('Registration completed')
 
             check_docker_state(web_socket)
@@ -64,7 +65,7 @@ def start_socket():
         LOGGER.warning('Try to reconnect')
 
 
-def check_docker_state(websocket):
+def check_docker_state(web_socket):
     LOGGER.info('Start check_docker_state')
     client = docker.from_env()
     LOGGER.info(client.containers.list())
@@ -86,7 +87,7 @@ def check_docker_state(websocket):
     }
 
     while True:
-        current_docker_state = empty_docker_state
+        current_docker_state = copy.deepcopy(empty_docker_state)
         LOGGER.debug("Checking docker containers:")
         for container in client.containers.list():
             LOGGER.debug(container.name)
@@ -109,7 +110,8 @@ def check_docker_state(websocket):
         else:
             LOGGER.debug('Docker state changed')
             LOGGER.debug('Send new state to Server')
-        previous_docker_state = current_docker_state
+            web_socket.send(json.dumps(current_docker_state))
+        previous_docker_state = copy.deepcopy(current_docker_state)
         time.sleep(10)
 
     LOGGER.info('End check_docker_state')
