@@ -18,7 +18,7 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER.propagate = False
 FH = logging.FileHandler("./monitor.log", "w")
 FORMATTER = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s  | At: %(lineno)d")
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 FH.setLevel(logging.DEBUG)
 FH.setFormatter(FORMATTER)
 LOGGER.addHandler(FH)
@@ -87,10 +87,9 @@ def check_docker_state(websocket):
 
     while True:
         previous_docker_state = docker_state
+        LOGGER.debug("Checking docker containers:")
         for container in client.containers.list():
             LOGGER.debug(container.name)
-            LOGGER.debug(CONFIG)
-            LOGGER.debug(CONFIG["chainContainerNames"]["ethereum"])
             if CONFIG["chainContainerNames"]["ethereum"] in container.name:
                 docker_state["ethereum"]["miners"] += 1
                 docker_state["ethereum"]["hosts"] += 1
