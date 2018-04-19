@@ -1,4 +1,4 @@
-"""Controller to handle all blockchains in the backend and connect to the aggregation server"""
+"""Monitor to report on all blockchain docker controllers"""
 import json
 import logging
 import os
@@ -50,7 +50,7 @@ def start_socket():
                 'monitor': hostname,
             }
             web_socket.send(json.dumps(data))
-            LOGGER.debug('Register completed')
+            LOGGER.debug('Registration completed')
 
             check_docker_state(web_socket)
 
@@ -86,6 +86,7 @@ def check_docker_state(websocket):
     LOGGER.info(docker_state)
 
     while True:
+        previous_docker_state = docker_state
         for container in client.containers.list():
             if CONFIG['ethereum'] in container.name:
                 docker_state['ethereum']['miners'] += 1
@@ -101,11 +102,19 @@ def check_docker_state(websocket):
                 docker_state['multichain']['miners'] += 1
                 docker_state['multichain']['hosts'] += 1
         LOGGER.debug(docker_state)
+        if previous_docker_state == docker_state:
+          LOGGER.debug('Docker state stayed the same')
+        else:
+          LOGGER.debug('Docker state changed')
+          LOGGER.debug('Send new state to Server')
+
+        time.sleep(10)
+
     LOGGER.info('End check_docker_state')
 
 
 def main():
-    """Main method to init the controller and start the websocket."""
+    """Main method to init the monitor and start the websocket."""
     try:
         global CONFIG
         CONFIG = yaml.safe_load(CONFIG_FILE)
