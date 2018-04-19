@@ -19,7 +19,7 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER.propagate = False
 FH = logging.FileHandler("./monitor.log", "w")
 FORMATTER = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s  | In: %(module)s at: %(lineno)d')")
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s  | At: %(lineno)d")
 FH.setLevel(logging.DEBUG)
 FH.setFormatter(FORMATTER)
 LOGGER.addHandler(FH)
