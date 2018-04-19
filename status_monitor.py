@@ -13,7 +13,6 @@ from websocket import create_connection
 
 PID = "./status_monitor.pid"
 
-CONFIG = {}
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 LOGGER.propagate = False
@@ -35,22 +34,21 @@ KEEP_FDS = [FH.stream.fileno(), CONFIG_FILE_ID]
 
 def start_socket():
     """Start the websocket and connect to the API Server."""
-    global ACTIVE_CHAIN_NAMES
     reconnect = 0
     while reconnect < 20:
         try:
             LOGGER.debug('Create connection')
             hostname = socket.gethostname()
-            web_socket = create_connection(CONFIG['url'])
+            web_socket = create_connection(CONFIG["url"])
             LOGGER.debug('Connection established')
             LOGGER.debug('Hostname: %s', hostname)
             reconnect = 0
             LOGGER.debug('Register with Server')
             data = {
-                'monitor': hostname,
-                'chains': CONFIG['chains']
+                "monitor": hostname,
+                "chains": CONFIG["chains"]
             }
-            web_socket.send(json.dumps(data))
+            # web_socket.send(json.dumps(data))
             LOGGER.debug('Registration completed')
 
             check_docker_state(web_socket)
@@ -58,6 +56,7 @@ def start_socket():
         except Exception as exception:
             LOGGER.error('Connection error occured')
             LOGGER.error(exception)
+            LOGGER.exception("message")
 
         reconnect += 1
         LOGGER.warning('Lost connection to server')
@@ -70,44 +69,47 @@ def check_docker_state(websocket):
     client = docker.from_env()
     LOGGER.info(client.containers.list())
     docker_state = {
-        'ethereum': {
-            'miners': 0,
-            'hosts': 0,
+        "ethereum": {
+            "miners": 0,
+            "hosts": 0,
         },
-        'xain': {
-            'miners': 0,
-            'hosts': 0,
+        "xain": {
+            "miners": 0,
+            "hosts": 0,
         },
-        'multichain': {
-            'miners': 0,
-            'hosts': 0,
+        "multichain": {
+            "miners": 0,
+            "hosts": 0,
         },
     }
 
-    LOGGER.info(docker_state)
+    LOGGER.info(str(docker_state))
 
     while True:
         previous_docker_state = docker_state
         for container in client.containers.list():
-            if CONFIG['ethereum'] in container.name:
-                docker_state['ethereum']['miners'] += 1
-                docker_state['ethereum']['hosts'] += 1
-            if CONFIG['ethereumLazy'] in container.name:
-                docker_state['ethereum']['hosts'] += 1
-            if CONFIG['xain'] in container.name:
-                docker_state['xain']['miners'] += 1
-                docker_state['xain']['hosts'] += 1
-            if CONFIG['xainLazy'] in container.name:
-                docker_state['xain']['hosts'] += 1
-            if CONFIG['multichain'] in container.name:
-                docker_state['multichain']['miners'] += 1
-                docker_state['multichain']['hosts'] += 1
-        LOGGER.debug(docker_state)
-        if (docker_state>previous_docker_state)-(docker_state<previous_docker_state) == 0:
-          LOGGER.debug('Docker state stayed the same')
+            LOGGER.debug(container.name)
+            LOGGER.debug(CONFIG)
+            LOGGER.debug(CONFIG["chainContainerNames"]["ethereum"])
+            if CONFIG["chainContainerNames"]["ethereum"] in container.name:
+                docker_state["ethereum"]["miners"] += 1
+                docker_state["ethereum"]["hosts"] += 1
+            if CONFIG["chainContainerNames"]["ethereumLazy"] in container.name:
+                docker_state["ethereum"]["hosts"] += 1
+            if CONFIG["chainContainerNames"]["xain"] in container.name:
+                docker_state["xain"]["miners"] += 1
+                docker_state["xain"]["hosts"] += 1
+            if CONFIG["chainContainerNames"]["xainLazy"] in container.name:
+                docker_state["xain"]["hosts"] += 1
+            if CONFIG["chainContainerNames"]["multichain"] in container.name:
+                docker_state["multichain"]["miners"] += 1
+                docker_state["multichain"]["hosts"] += 1
+        LOGGER.debug(str(docker_state))
+        if docker_state == previous_docker_state:
+            LOGGER.debug('Docker state stayed the same')
         else:
-          LOGGER.debug('Docker state changed')
-          LOGGER.debug('Send new state to Server')
+            LOGGER.debug('Docker state changed')
+            LOGGER.debug('Send new state to Server')
 
         time.sleep(10)
 
