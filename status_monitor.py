@@ -19,7 +19,7 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER.propagate = False
 FH = logging.FileHandler("./monitor.log", "w")
 FORMATTER = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s  | In: %(module)s at: %(lineno)d')")
 FH.setLevel(logging.DEBUG)
 FH.setFormatter(FORMATTER)
 LOGGER.addHandler(FH)
@@ -48,6 +48,7 @@ def start_socket():
             LOGGER.debug('Register with Server')
             data = {
                 'monitor': hostname,
+                'chains': CONFIG['chains']
             }
             web_socket.send(json.dumps(data))
             LOGGER.debug('Registration completed')
