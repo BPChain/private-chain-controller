@@ -14,23 +14,25 @@ echo "Downloading and updating Blockchains"
 if [ ! -d "private-xain" ]; then
 	git clone https://github.com/BPChain/private-xain.git -b dev
 else
-    cd private-xain
+    cd private-xain || exit
     git pull
-    cd ..
+    cd .. || exit
 fi
 if [ ! -d "private-multichain" ]; then
 	git clone https://github.com/BPChain/private-multichain.git -b dev
 else
-    cd private-multichain
+    cd private-multichain || exit
     git pull
-    cd ..
+    cd .. || exit
 fi
 if [ ! -d "private-ethereum" ]; then
 	git clone https://github.com/BPChain/private-ethereum.git -b dev
 else
-    cd private-ethereum
+    cd private-ethereum || exit
     git pull
-    cd ..
+    cd .. || exit
 fi
 echo "Starting Controller"
 python3 controller.py || exit
+echo "Starting Monitor"
+python3 monitor.py || exit
