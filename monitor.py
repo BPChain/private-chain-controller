@@ -12,6 +12,7 @@ from websocket import create_connection
 
 PID = "./status_monitor.pid"
 CONFIG = {}
+HOSTNAME = socket.gethostname()
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
@@ -38,19 +39,13 @@ def start_socket():
     while reconnect < 20:
         try:
             LOGGER.debug('Create connection')
-            hostname = socket.gethostname()
             web_socket = create_connection(CONFIG["url"])
             LOGGER.debug('Connection established')
-            LOGGER.debug('Hostname: %s', hostname)
+            global HOSTNAME
+            LOGGER.debug('Hostname: %s', HOSTNAME)
             reconnect = 0
             LOGGER.debug('Register with Server')
-            data = {
-                "monitor": hostname,
-                "chains": CONFIG["chains"]
-            }
-            web_socket.send(json.dumps(data))
             LOGGER.debug('Registration completed')
-
             check_docker_state(web_socket)
 
         except Exception as exception:
@@ -111,7 +106,11 @@ def check_docker_state(web_socket):
         else:
             LOGGER.debug('Docker state changed')
             LOGGER.debug('Send new state to Server')
-            web_socket.send(json.dumps(current_docker_state))
+            global HOSTNAME
+            web_socket.send(json.dumps({
+              "monitor": HOSTNAME,
+              "state": current_docker_state,
+              }))
         previous_docker_state = copy.deepcopy(current_docker_state)
         time.sleep(10)
 
