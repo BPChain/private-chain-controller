@@ -11,3 +11,4 @@ install:
 # command to test
 script:
   - pylint controller.py
+  - pylint monitor.py

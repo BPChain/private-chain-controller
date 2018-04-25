@@ -11,11 +11,11 @@ multichainPort: 21000
 xainPort: 20000
 
 chainContainerNames:
-- ethereum: eth_node
-- ethereumLazy: eth_lazy
-- xain: xain_node
-- xainLazy: xain_lazy
-- multichain: multichain
+  ethereum: eth_node
+  ethereumLazy: eth_lazy
+  xain: xain_node
+  xainLazy: xain_lazy
+  multichain: multichain
 
 
 chains:
