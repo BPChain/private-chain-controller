@@ -21,8 +21,6 @@ chainContainerNames:
 chains:
 - chainName: ethereum
   parameter:
-  - selector: numberOfHosts
-    name: Number of hosts
   - selector: numberOfMiners
     name: Number of miners
   - selector: startChain
@@ -31,8 +29,6 @@ chains:
 
 - chainName: xain
   parameter:
-  - selector: numberOfHosts
-    name: Number of hosts
   - selector: numberOfMiners
     name: Number of miners
   - selector: startChain

@@ -37,7 +37,7 @@ KEEP_FDS = [FH.stream.fileno(), CONFIG_FILE_ID]
 def start_chain(chain_name):
     """Start a given chain."""
     global ACTIVE_CHAIN_NAMES
-    path = CONFIG['chainScripts']['start'].format(str(chain_name))
+    path = CONFIG['chainScri pts']['start'].format(str(chain_name))
     LOGGER.info("path %s", path)
     result = subprocess.run([str(path)], stdout=subprocess.PIPE)
     LOGGER.info("return code %d", result.returncode)
