@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "Running setup"
-which git
 if [ ! -d "private-xain" ]; then
 	git clone https://github.com/BPChain/private-xain.git -b dev
 else
