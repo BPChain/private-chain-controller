@@ -1,3 +1,3 @@
 #!/bin/bash
-echo "Starting Controller"
+echo "Starting Monitor"
 python3 status_monitor.py || exit
