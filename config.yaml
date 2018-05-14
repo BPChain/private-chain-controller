@@ -8,7 +8,7 @@ chainScripts:
 
 ethereumPort: 20000
 multichainPort: 21000
-xainPort: 20000
+xainPort: 22000
 
 chainContainerNames:
   ethereum: privateethereum_eth_node
