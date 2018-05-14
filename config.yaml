@@ -15,7 +15,7 @@ chainContainerNames:
   ethereumLazy: eth_lazy
   xain: xain_node
   xainLazy: xain_lazy
-  multichain: multichain
+  multichain: multichain_slave
 
 
 chains:
