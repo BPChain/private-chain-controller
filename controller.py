@@ -49,6 +49,7 @@ def stop_chain(chain_name):
     """Stop a given chain."""
     global ACTIVE_CHAIN_NAMES
     path = CONFIG['chainScripts']['stop'].format(str(chain_name))
+    LOGGER.info('stopping: %a', path)
     subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
     ACTIVE_CHAIN_NAMES.remove(chain_name)
 
