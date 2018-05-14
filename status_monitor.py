@@ -88,6 +88,7 @@ def check_docker_state(websocket):
     while True:
         previous_docker_state = docker_state
         for container in client.containers.list():
+            LOGGER.info(container.name)
             if CONFIG['ethereum'] in container.name:
                 docker_state['ethereum']['miners'] += 1
                 docker_state['ethereum']['hosts'] += 1
