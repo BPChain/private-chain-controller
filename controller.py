@@ -52,7 +52,6 @@ def stop_chain(chain_name):
     path = CONFIG['chainScripts']['stop'].format(str(chain_name))
     LOGGER.info('stopping: %a', path)
     subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
-    ACTIVE_CHAIN_NAMES.remove(chain_name)
     LOGGER.info("ACTIVE CHAIN NAMES %s", ACTIVE_CHAIN_NAMES)
 
 
@@ -191,12 +190,12 @@ def start_socket():
 
 def exit_controller():
     """Exit from the controller and stop all active chains."""
-    global ACTIVE_CHAIN_NAMES
     LOGGER.debug('Stopping active chains %s', ACTIVE_CHAIN_NAMES)
     for chain in ACTIVE_CHAIN_NAMES:
         LOGGER.debug("Current chain: %s", chain)
-        stop_chain(chain)
-
+        path = CONFIG['chainScripts']['stop'].format(str(chain))
+        LOGGER.info('stopping: %a', path)
+        subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
 
 def main():
     """Main method to init the controller and start the websocket."""
