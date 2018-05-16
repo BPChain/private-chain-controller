@@ -91,12 +91,8 @@ def check_docker_state(web_socket):
             if CONFIG["chainContainerNames"]["ethereum"] in container.name:
                 current_docker_state["ethereum"]["miners"] += 1
                 current_docker_state["ethereum"]["hosts"] += 1
-            if CONFIG["chainContainerNames"]["ethereumLazy"] in container.name:
-                current_docker_state["ethereum"]["hosts"] += 1
             if CONFIG["chainContainerNames"]["xain"] in container.name:
                 current_docker_state["xain"]["miners"] += 1
-                current_docker_state["xain"]["hosts"] += 1
-            if CONFIG["chainContainerNames"]["xainLazy"] in container.name:
                 current_docker_state["xain"]["hosts"] += 1
             if CONFIG["chainContainerNames"]["multichain"] in container.name:
                 current_docker_state["multichain"]["miners"] += 1
