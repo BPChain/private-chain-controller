@@ -29,8 +29,8 @@ fi
 export LC_ALL=C
 if [ ! -d "virtualenv" ]; then
     echo "Creating virtual python environment..."
-	python3 -m venv ./virtualenv
-	source virtualenv/bin/activate
+	python3 -m venv ./virtualenv || exit 1
+	source virtualenv/bin/activate || exit 1
     echo "Installing Python requirements"
-    pip3 install -r requirements.txt
+    pip3 install -r requirements.txt || exit 1
 fi
