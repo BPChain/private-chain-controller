@@ -5,6 +5,9 @@ if [ ! -d "private-xain" ]; then
 else
     cd private-xain || exit
     git pull
+    cd Node
+    docker-compose build --force-rm
+    cd .. || exit
     cd .. || exit
 fi
 if [ ! -d "private-multichain" ]; then
@@ -12,6 +15,7 @@ if [ ! -d "private-multichain" ]; then
 else
     cd private-multichain || exit
     git pull
+    docker-compose build --force-rm
     cd .. || exit
 fi
 if [ ! -d "private-ethereum" ]; then
@@ -19,17 +23,14 @@ if [ ! -d "private-ethereum" ]; then
 else
     cd private-ethereum || exit
     git pull
+    docker-compose build --force-rm
     cd .. || exit
 fi
 export LC_ALL=C
 if [ ! -d "virtualenv" ]; then
     echo "Creating virtual python environment..."
 	python3 -m venv ./virtualenv
+	source virtualenv/bin/activate
+    echo "Installing Python requirements"
+    pip3 install -r requirements.txt
 fi
-echo "Activating virtual python environment..."
-source virtualenv/bin/activate
-echo "Installing Python requirements"
-pip3 install -r requirements.txt
-echo "Downloading and updating Blockchains"
-echo "Starting Controller"
-python3 controller.py || exit

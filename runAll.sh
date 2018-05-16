@@ -1,4 +1,4 @@
 #!/bin/bash
-./deployBlockchains.sh
+./startController.sh &
 ./startMonitor.sh
 
