@@ -8,14 +8,14 @@ else
     cd .. || exit
 fi
 if [ ! -d "private-multichain" ]; then
-	git clone https://github.com/BPChain/private-multichain.git -b sub_modules
+	git clone https://github.com/BPChain/private-multichain.git -b dev
 else
     cd private-multichain || exit
     git pull
     cd .. || exit
 fi
 if [ ! -d "private-ethereum" ]; then
-	git clone https://github.com/BPChain/private-ethereum.git -b scylla_with_pip
+	git clone https://github.com/BPChain/private-ethereum.git -b dev
 else
     cd private-ethereum || exit
     git pull
