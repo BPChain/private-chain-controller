@@ -191,7 +191,7 @@ def start_socket():
 def exit_controller():
     """Exit from the controller and stop all active chains."""
     global ACTIVE_CHAIN_NAMES
-    LOGGER.debug('Stopping active chains')
+    LOGGER.debug('Stopping active chains %s', ACTIVE_CHAIN_NAMES)
     for chain in ACTIVE_CHAIN_NAMES:
         stop_chain(chain)
 
