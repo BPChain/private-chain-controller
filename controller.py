@@ -20,7 +20,7 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER.propagate = False
 FH = logging.FileHandler("./logfile.log", "w")
 FORMATTER = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s at: '%(lineno)d'")
 FH.setLevel(logging.DEBUG)
 FH.setFormatter(FORMATTER)
 LOGGER.addHandler(FH)
@@ -73,21 +73,20 @@ def scale_miners(chain_name, value):
                          stdout=open(os.devnull, 'wb'))
 
 
-def set_scenario_parameters(chain_name, period, payload_size):
+def set_scenario_parameters(chain_name, scenario):
     """Set scenario period and payloadSize."""
-    global ACTIVE_CHAIN_NAMES
+    LOGGER.info(scenario)
+    data = json.dumps(scenario['logContent'])
+    LOGGER.info(data)
     if chain_name in ACTIVE_CHAIN_NAMES:
-        LOGGER.debug('Setting ' + chain_name + ' period to: ' + str(period))
-        LOGGER.debug('Setting ' + chain_name +
-                     ' payloadSize to: ' + str(payload_size))
+        LOGGER.debug('Setting for %s is %s ', chain_name, data)
         port = CONFIG['{}Port'.format(chain_name)]
         docker_websocket = create_connection("ws://localhost:{}".format(port))
-        data = json.dumps({"period": period, "payloadSize": payload_size})
         docker_websocket.send(data)
         docker_websocket.close()
 
 
-def dispatch_action(chain_name, parameter, value):
+def dispatch_action(chain_name, parameter, value, scenario):
     """Dispatch the parameters and values to the chain."""
     global ACTIVE_CHAIN_NAMES
     if parameter == 'numberofhosts':
@@ -108,7 +107,7 @@ def dispatch_action(chain_name, parameter, value):
 
     if parameter == 'scenario':
         LOGGER.debug('Sending scenario parameters to %s', chain_name)
-        set_scenario_parameters(chain_name, value['period'], value['payloadSize'])
+        set_scenario_parameters(chain_name, scenario)
 
 
 def enact_job(job):
@@ -121,16 +120,17 @@ def enact_job(job):
                 LOGGER.debug(parameter)
                 for available_parameter in chain['parameter']:
                     if parameter.lower() == available_parameter['selector'].lower():
-                        selected_parameter = available_parameter['selector'].lower(
-                        )
+                        selected_parameter = available_parameter['selector'].lower()
                         try:
+                            scenario = job['scenario']
                             dispatch_action(
                                 chain_name,
                                 selected_parameter,
-                                job['parameters'][available_parameter['selector']])
+                                job['parameters'][available_parameter['selector']],
+                                scenario)
                         except Exception as exception:
-                            LOGGER.debug('Error occured when dispatching job')
-                            LOGGER.debug(exception)
+                            LOGGER.error('Error occured when dispatching job')
+                            LOGGER.error(exception)
 
 
 def init_controller():
@@ -196,6 +196,7 @@ def exit_controller():
         path = CONFIG['chainScripts']['stop'].format(str(chain))
         LOGGER.info('stopping: %a', path)
         subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
+
 
 def main():
     """Main method to init the controller and start the websocket."""
