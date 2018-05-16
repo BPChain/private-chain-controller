@@ -28,6 +28,7 @@ CONFIG_FILE_ID = CONFIG_FILE.fileno()
 
 KEEP_FDS = [FH.stream.fileno(), CONFIG_FILE_ID]
 
+
 # pylint: disable=broad-except
 # pylint: disable=global-statement
 # pylint: disable=too-many-nested-blocks
@@ -108,9 +109,9 @@ def check_docker_state(web_socket):
             LOGGER.debug('Send new state to Server')
             global HOSTNAME
             web_socket.send(json.dumps({
-              "monitor": HOSTNAME,
-              "state": current_docker_state,
-              }))
+                "monitor": HOSTNAME,
+                "state": current_docker_state,
+            }))
         previous_docker_state = copy.deepcopy(current_docker_state)
         time.sleep(10)
 

@@ -30,6 +30,7 @@ CONFIG_FILE_ID = CONFIG_FILE.fileno()
 
 KEEP_FDS = [FH.stream.fileno(), CONFIG_FILE_ID]
 
+
 # pylint: disable=broad-except
 # pylint: disable=global-statement
 # pylint: disable=too-many-nested-blocks
@@ -49,6 +50,7 @@ def stop_chain(chain_name):
     """Stop a given chain."""
     global ACTIVE_CHAIN_NAMES
     path = CONFIG['chainScripts']['stop'].format(str(chain_name))
+    LOGGER.info('stopping: %a', path)
     subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
     ACTIVE_CHAIN_NAMES.remove(chain_name)
 

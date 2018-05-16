@@ -1,5 +1,5 @@
 #!/bin/bash
 # Removes ethereum
 
-cd private-ethereum/Node || exit
+cd private-ethereum || exit
 docker-compose down
