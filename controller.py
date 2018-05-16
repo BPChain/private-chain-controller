@@ -53,6 +53,7 @@ def stop_chain(chain_name):
     LOGGER.info('stopping: %a', path)
     subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
     ACTIVE_CHAIN_NAMES.remove(chain_name)
+    LOGGER.info("ACTIVE CHAIN NAMES %s", ACTIVE_CHAIN_NAMES)
 
 
 def scale_hosts(chain_name, value):
