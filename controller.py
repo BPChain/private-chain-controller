@@ -193,6 +193,7 @@ def exit_controller():
     global ACTIVE_CHAIN_NAMES
     LOGGER.debug('Stopping active chains %s', ACTIVE_CHAIN_NAMES)
     for chain in ACTIVE_CHAIN_NAMES:
+        LOGGER.debug("Current chain: %s", chain)
         stop_chain(chain)
 
 
