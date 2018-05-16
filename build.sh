@@ -6,7 +6,7 @@ else
     cd private-xain || exit
     git pull
     cd Node
-    docker-compose build --force-rm
+    docker-compose build --force-rm --no-cache
     cd .. || exit
     cd .. || exit
 fi
@@ -15,7 +15,7 @@ if [ ! -d "private-multichain" ]; then
 else
     cd private-multichain || exit
     git pull
-    docker-compose build --force-rm
+    docker-compose build --force-rm --no-cache
     cd .. || exit
 fi
 if [ ! -d "private-ethereum" ]; then
@@ -23,7 +23,7 @@ if [ ! -d "private-ethereum" ]; then
 else
     cd private-ethereum || exit
     git pull
-    docker-compose build --force-rm
+    docker-compose build --force-rm --no-cache
     cd .. || exit
 fi
 export LC_ALL=C
