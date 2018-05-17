@@ -51,7 +51,6 @@ def stop_chain(chain_name):
     path = CONFIG['chainScripts']['stop'].format(str(chain_name))
     LOGGER.info('stopping: %a', path)
     subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
-    LOGGER.info("ACTIVE CHAIN NAMES %s", ACTIVE_CHAIN_NAMES)
 
 
 def scale_hosts(chain_name, value):
@@ -87,7 +86,6 @@ def set_scenario_parameters(chain_name, scenario):
 
 def dispatch_action(chain_name, parameter, value, scenario):
     """Dispatch the parameters and values to the chain."""
-    global ACTIVE_CHAIN_NAMES
     if parameter == 'numberofhosts':
         LOGGER.debug('Scale %s hosts to %d', chain_name, value)
         scale_hosts(chain_name, value)
@@ -104,6 +102,7 @@ def dispatch_action(chain_name, parameter, value, scenario):
         LOGGER.debug('Stop %s', chain_name)
         stop_chain(chain_name)
         ACTIVE_CHAIN_NAMES.remove(chain_name)
+        LOGGER.info("ACTIVE CHAIN NAMES %s", ACTIVE_CHAIN_NAMES)
 
     if scenario:
         LOGGER.debug('Sending scenario parameters to %s', chain_name)
@@ -170,10 +169,9 @@ def start_socket():
 
 def stop_all_chains():
     global ACTIVE_CHAIN_NAMES
-    if ACTIVE_CHAIN_NAMES:
-        for chain in ACTIVE_CHAIN_NAMES:
-            stop_chain(chain)
-        ACTIVE_CHAIN_NAMES = []
+    for chain in ACTIVE_CHAIN_NAMES:
+        stop_chain(chain)
+    ACTIVE_CHAIN_NAMES = []
 
 
 def connect_to_api_server():
@@ -195,11 +193,7 @@ def connect_to_api_server():
 def exit_controller():
     """Exit from the controller and stop all active chains."""
     LOGGER.debug('Stopping active chains %s', ACTIVE_CHAIN_NAMES)
-    for chain in ACTIVE_CHAIN_NAMES:
-        LOGGER.debug("Current chain: %s", chain)
-        path = CONFIG['chainScripts']['stop'].format(str(chain))
-        LOGGER.info('stopping: %a', path)
-        subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
+    stop_all_chains()
 
 
 def main():
