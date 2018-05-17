@@ -48,7 +48,6 @@ def start_chain(chain_name):
 
 def stop_chain(chain_name):
     """Stop a given chain."""
-    global ACTIVE_CHAIN_NAMES
     path = CONFIG['chainScripts']['stop'].format(str(chain_name))
     LOGGER.info('stopping: %a', path)
     subprocess.Popen([str(path)], stdout=open(os.devnull, 'wb'))
@@ -104,15 +103,15 @@ def dispatch_action(chain_name, parameter, value, scenario):
     if parameter == 'stopchain':
         LOGGER.debug('Stop %s', chain_name)
         stop_chain(chain_name)
+        ACTIVE_CHAIN_NAMES.remove(chain_name)
 
-    if parameter == 'scenario':
+    if scenario:
         LOGGER.debug('Sending scenario parameters to %s', chain_name)
         set_scenario_parameters(chain_name, scenario)
 
 
 def enact_job(job):
     """Enact the retrieved job on the given chain."""
-    global ACTIVE_CHAIN_NAMES
     for chain in CONFIG['chains']:
         if chain['chainName'].lower() == job['chainName'].lower():
             chain_name = chain['chainName']
@@ -123,6 +122,7 @@ def enact_job(job):
                         selected_parameter = available_parameter['selector'].lower()
                         try:
                             scenario = job['scenario']
+                            LOGGER.info(scenario)
                             dispatch_action(
                                 chain_name,
                                 selected_parameter,
@@ -145,47 +145,51 @@ def init_controller():
 
 def start_socket():
     """Start the websocket and connect to the API Server."""
-    global ACTIVE_CHAIN_NAMES
     reconnect = 0
     while reconnect < 20:
         try:
-            if ACTIVE_CHAIN_NAMES:
-                for chain in ACTIVE_CHAIN_NAMES:
-                    stop_chain(chain)
-
-            LOGGER.debug('Create connection')
-            hostname = socket.gethostname()
-            web_socket = create_connection(CONFIG['url'])
-            LOGGER.debug('Connection established')
-            LOGGER.debug('Hostname: %s', hostname)
-            reconnect = 0
-            LOGGER.debug('Send chain configuration options')
-            data = {
-                'target': hostname,
-                'chains': CONFIG['chains'],
-            }
-            web_socket.send(json.dumps(data))
-            LOGGER.debug('Chain configuration options sent')
-
+            reconnect, api_server_connection = connect_to_api_server()
             waiting_for_inputs = True
             while waiting_for_inputs:
-                message = web_socket.recv()
+                message = api_server_connection.recv()
                 LOGGER.debug('Received %s', message)
                 try:
                     job = json.loads(message)
                     enact_job(job)
                 except Exception as exception:
-                    LOGGER.debug('Error occured. Can not parse JSON')
-                    LOGGER.debug(exception)
+                    LOGGER.debug('Error occured. Can not parse JSON %s', exception)
 
         except Exception as exception:
-            LOGGER.debug('Connection error occured')
-            LOGGER.debug(exception)
+            LOGGER.debug('Connection error occured %s', exception)
 
         reconnect += 1
         LOGGER.debug('Lost connection to server')
         time.sleep(5)
         LOGGER.debug('Try to reconnect')
+
+
+def stop_all_chains():
+    global ACTIVE_CHAIN_NAMES
+    if ACTIVE_CHAIN_NAMES:
+        for chain in ACTIVE_CHAIN_NAMES:
+            stop_chain(chain)
+        ACTIVE_CHAIN_NAMES = []
+
+
+def connect_to_api_server():
+    stop_all_chains()
+    hostname = socket.gethostname()
+    web_socket = create_connection(CONFIG['url'])
+    LOGGER.debug('Created connection')
+    LOGGER.debug('Hostname: %s', hostname)
+    LOGGER.debug('Send chain configuration options')
+    data = {
+        'target': hostname,
+        'chains': CONFIG['chains'],
+    }
+    web_socket.send(json.dumps(data))
+    LOGGER.debug('Chain configuration options sent')
+    return 0, web_socket
 
 
 def exit_controller():
