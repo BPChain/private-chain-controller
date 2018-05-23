@@ -111,6 +111,7 @@ def dispatch_action(chain_name, parameter, value, scenario):
 
 def enact_job(job):
     """Enact the retrieved job on the given chain."""
+    LOGGER.debug(job)
     for chain in CONFIG['chains']:
         if chain['chainName'].lower() == job['chainName'].lower():
             chain_name = chain['chainName']
