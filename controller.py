@@ -84,21 +84,23 @@ def set_scenario_parameters(chain_name, scenario):
         docker_websocket.close()
 
 
-def dispatch_action(chain_name, parameter, value, scenario):
+def dispatch_action(chain_name, parameters=None, scenario=None):
     """Dispatch the parameters and values to the chain."""
-    if parameter == 'numberofhosts':
-        LOGGER.debug('Scale %s hosts to %d', chain_name, value)
-        scale_hosts(chain_name, value)
+    LOGGER.debug(parameters)
+    parameters = {key.lower(): value for key, value in parameters.items()}
+    if 'numberofhosts' in parameters:
+        LOGGER.debug('Scale %s hosts to %d', chain_name, parameters['numberofhosts'])
+        scale_hosts(chain_name, parameters['numberofhosts'])
 
-    if parameter == 'numberofminers':
-        LOGGER.debug('Scale %s miners to %d', chain_name, value)
-        scale_miners(chain_name, value)
+    if 'numberofminers' in parameters:
+        LOGGER.debug('Scale %s miners to %d', chain_name, parameters['numberofminers'])
+        scale_miners(chain_name, parameters['numberofminers'])
 
-    if parameter == 'startchain':
+    if 'startchain' in parameters:
         LOGGER.debug('Start %s', chain_name)
         start_chain(chain_name)
 
-    if parameter == 'stopchain':
+    if 'stopchain' in parameters:
         LOGGER.debug('Stop %s', chain_name)
         stop_chain(chain_name)
         ACTIVE_CHAIN_NAMES.remove(chain_name)
@@ -108,6 +110,9 @@ def dispatch_action(chain_name, parameter, value, scenario):
         LOGGER.debug('Sending scenario parameters to %s', chain_name)
         set_scenario_parameters(chain_name, scenario)
 
+    LOGGER.debug('Tried to dispatch %s %s %s', chain_name, parameters, scenario)
+
+
 
 def enact_job(job):
     """Enact the retrieved job on the given chain."""
@@ -115,22 +120,17 @@ def enact_job(job):
     for chain in CONFIG['chains']:
         if chain['chainName'].lower() == job['chainName'].lower():
             chain_name = chain['chainName']
-            for parameter in job['parameters']:
-                LOGGER.debug(parameter)
-                for available_parameter in chain['parameter']:
-                    if parameter.lower() == available_parameter['selector'].lower():
-                        selected_parameter = available_parameter['selector'].lower()
-                        try:
-                            scenario = job['scenario']
-                            LOGGER.info(scenario)
-                            dispatch_action(
-                                chain_name,
-                                selected_parameter,
-                                job['parameters'][available_parameter['selector']],
-                                scenario)
-                        except Exception as exception:
-                            LOGGER.error('Error occured when dispatching job')
-                            LOGGER.error(exception)
+            LOGGER.debug(job['parameters'])
+            try:
+                scenario = job['scenario']
+                LOGGER.info(scenario)
+                dispatch_action(
+                    chain_name,
+                    job['parameters'],
+                    scenario)
+            except Exception as exception:
+                LOGGER.error('Error occured when dispatching job')
+                LOGGER.error(exception)
 
 
 def init_controller():
