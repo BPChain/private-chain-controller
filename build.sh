@@ -9,7 +9,7 @@ else
     cd private-xain || exit
     git pull || exit 1
     docker-compose build --force-rm
-    cd ../..
+    cd ..
 fi
 if [ ! -d "private-multichain" ]; then
 	git clone https://github.com/BPChain/private-multichain.git -b dev
