@@ -1,5 +1,5 @@
 #!/bin/bash
 # Removes xain
 
-cd private-xain/Node || exit
+cd private-xain || exit
 docker-compose down

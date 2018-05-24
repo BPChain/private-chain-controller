@@ -3,7 +3,7 @@
 
 export HOSTNAME
 
-cd private-xain/Node || exit
+cd private-xain || exit
 
 let "scale_number=0"
 let "scale_count=0"

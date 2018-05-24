@@ -12,7 +12,7 @@ xainPort: 22000
 
 chainContainerNames:
   ethereum: privateethereum_eth_node
-  xain: node_xain_node
+  xain: privatexain_xain_node
   multichain: multichain_slave
 
 chains:
