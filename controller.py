@@ -113,7 +113,6 @@ def dispatch_action(chain_name, parameters=None, scenario=None):
     LOGGER.debug('Tried to dispatch %s %s %s', chain_name, parameters, scenario)
 
 
-
 def enact_job(job):
     """Enact the retrieved job on the given chain."""
     LOGGER.debug(job)
@@ -129,8 +128,7 @@ def enact_job(job):
                     job['parameters'],
                     scenario)
             except Exception as exception:
-                LOGGER.error('Error occured when dispatching job')
-                LOGGER.error(exception)
+                LOGGER.error('Error occured when dispatching job %s', exception)
 
 
 def init_controller():

@@ -3,8 +3,8 @@ echo "Running setup"
 if [ ! -d "private-xain" ]; then
 	git clone https://github.com/BPChain/private-xain.git -b dev
 fi
-if [ ! -f "Node/files/geth" ]; then
-    echo "You need to provide Xain-Geth binary. Xain will not be build!!!!!!"
+if [ ! -f "private-xain/Node/files/geth" ]; then
+    echo "ERROR!!! You need to provide Xain-Geth binary. Xain will not be build!!!!!!"
 else
     cd private-xain || exit
     git pull || exit 1
