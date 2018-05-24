@@ -8,7 +8,6 @@ if [ ! -f "private-xain/Node/files/geth" ]; then
 else
     cd private-xain || exit
     git pull || exit 1
-    cd Node || exit 1
     docker-compose build --force-rm
     cd ../..
 fi
