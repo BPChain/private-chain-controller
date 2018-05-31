@@ -167,6 +167,7 @@ def start_socket():
 
 
 def stop_all_chains():
+    """Stops all active chains. Sets the active chain list to an empty list"""
     global ACTIVE_CHAIN_NAMES
     for chain in ACTIVE_CHAIN_NAMES:
         stop_chain(chain)
@@ -174,6 +175,10 @@ def stop_all_chains():
 
 
 def connect_to_api_server():
+    """
+    Connects to the api server at the address provided in the config
+    :return: 0 connection retries and the websocket connection
+    """
     stop_all_chains()
     hostname = socket.gethostname()
     web_socket = create_connection(CONFIG['url'])

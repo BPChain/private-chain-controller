@@ -1,3 +1,4 @@
+travis: [![Build Status](https://travis-ci.org/BPChain/private-chain-controller.svg?branch=master)](https://travis-ci.org/BPChain/private-chain-controller)
 # private-chain-controller
 The Private Chain Controller is used to start, stop, and scale blockchain nodes. It also sends 
 scenario settings to the [`scenario-orchestrators`](https://github.com/BPChain/scenario-orchestration-service)
