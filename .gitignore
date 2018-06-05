@@ -3,3 +3,11 @@ logfile.log
 # IntelliJ project files
 .idea
 *.iml
+private-ethereum/
+private-multichain/
+private-xain/
+virtualenv/
+controller.pid
+monitor.log
+status_monitor.pid
+
