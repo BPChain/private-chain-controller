@@ -15,12 +15,12 @@ CONFIG = {}
 HOSTNAME = socket.gethostname()
 
 LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.WARN)
 LOGGER.propagate = False
 FH = logging.FileHandler("./monitor.log", "w")
 FORMATTER = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-FH.setLevel(logging.DEBUG)
+FH.setLevel(logging.WARN)
 FH.setFormatter(FORMATTER)
 LOGGER.addHandler(FH)
 CONFIG_FILE = open(os.path.join(os.path.dirname(__file__), 'config.yaml'))
@@ -55,9 +55,9 @@ def start_socket():
             LOGGER.exception("message")
 
         reconnect += 1
-        LOGGER.warning('Lost connection to server')
+        LOGGER.warn('Lost connection to server')
         time.sleep(5)
-        LOGGER.warning('Try to reconnect')
+        LOGGER.warn('Try to reconnect')
 
 
 def check_docker_state(web_socket):

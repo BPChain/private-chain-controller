@@ -16,12 +16,12 @@ CONFIG = {}
 ACTIVE_CHAIN_NAMES = []
 
 LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.WARN)
 LOGGER.propagate = False
 FH = logging.FileHandler("./logfile.log", "w")
 FORMATTER = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s at: '%(lineno)d'")
-FH.setLevel(logging.DEBUG)
+FH.setLevel(logging.WARN)
 FH.setFormatter(FORMATTER)
 LOGGER.addHandler(FH)
 
@@ -137,8 +137,8 @@ def init_controller():
         global CONFIG
         CONFIG = yaml.safe_load(CONFIG_FILE)
     except Exception as exception:
-        LOGGER.debug('Error occured while parsing config.yaml')
-        LOGGER.debug(exception)
+        LOGGER.error('Error occured while parsing config.yaml')
+        LOGGER.error(exception)
 
 
 def start_socket():
@@ -155,15 +155,15 @@ def start_socket():
                     job = json.loads(message)
                     enact_job(job)
                 except Exception as exception:
-                    LOGGER.debug('Error occured. Can not parse JSON %s', exception)
+                    LOGGER.warn('Error occured. Can not parse JSON %s', exception)
 
         except Exception as exception:
-            LOGGER.debug('Connection error occured %s', exception)
+            LOGGER.error('Connection error occured %s', exception)
 
         reconnect += 1
-        LOGGER.debug('Lost connection to server')
+        LOGGER.warn('Lost connection to server')
         time.sleep(5)
-        LOGGER.debug('Try to reconnect')
+        LOGGER.warn('Try to reconnect')
 
 
 def stop_all_chains():
