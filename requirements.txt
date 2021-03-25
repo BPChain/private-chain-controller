@@ -4,7 +4,7 @@ daemonize==2.4.7
 docker==2.0.0
 docker-pycreds==0.2.2
 idna==2.6
-PyYAML==3.12
+PyYAML==5.4
 requests==2.18.4
 six==1.11.0
 urllib3==1.22
